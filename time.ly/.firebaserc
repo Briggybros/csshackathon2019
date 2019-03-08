@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "boeing2019hackathon"
+    "default": "boeing2019hackathon",
+    "hack": "boeing2019hackathon"
   }
 }

@@ -1,7 +1,7 @@
 import { Firestore, QueryDocumentSnapshot, DocumentReference } from "@google-cloud/firestore";
 import { CallableContext } from "firebase-functions/lib/providers/https";
 
-const dateutils = require('./dateutils.js')
+import * as dateutils from './dateutils.js'
 
 export interface Todo {
     scheduledDateTime: number,
@@ -54,7 +54,7 @@ export class TodoListsApi {
             todos: todos,
         }
 
-        var dateRange = dateutils.todaysDateRange
+        var dateRange = dateutils.todaysDateRange()
         return await this.db
             .collection(TODOLIST_COLLECTION_NAME)
             .add(newTodoList)

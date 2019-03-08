@@ -1,4 +1,4 @@
-import { Timestamp, Firestore, CollectionReference, QueryDocumentSnapshot } from "@google-cloud/firestore";
+import { Timestamp, Firestore, CollectionReference, QueryDocumentSnapshot, DocumentSnapshot } from "@google-cloud/firestore";
 import { CallableContext } from "firebase-functions/lib/providers/https";
 
 export const COLLECTION_NAME = 'schedules'
@@ -47,7 +47,7 @@ export function validateSchedule (schedule: Schedule) {
             typeof schedule.preferredHours === 'object'
 }
 
-export function mapQueryToSchedule(s: QueryDocumentSnapshot): Schedule {
+export function mapQueryToSchedule(s: DocumentSnapshot): Schedule {
     return {
         name: <string>s.get("name"),
         createdOn: <number>s.get("number"),
@@ -75,7 +75,7 @@ export class SchedulesApi {
         })
     }
 
-    async scheduleById(id):Promise<Schedule> {
+    async scheduleById(id:string):Promise<Schedule> {
         return await this.userSchedules
                 .doc(id)
                 .get()
@@ -97,7 +97,7 @@ export class SchedulesApi {
 
 export class ScheduleApiHandlers {
 
-    constructor(private db:Firestore) {
+    constructor(private db: Firestore) {
 
     }
     addScheduleHandler(data: any, context: CallableContext): any {
@@ -105,10 +105,10 @@ export class ScheduleApiHandlers {
     }
     
     deleteScheduleHandler(data: any, context: CallableContext): any {
-    
+        return null
     }
     
     getSchedulesHandler(data: any, context: CallableContext): any {
-    
+        return null
     }
 }

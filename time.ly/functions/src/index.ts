@@ -1,22 +1,20 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin'
-import { CallableContext } from 'firebase-functions/lib/providers/https';
-import { Firestore } from '@google-cloud/firestore';
 
-const { google } = require('googleapis')
+import { google } from 'googleapis'
 
 const userApis = require('./user_apis')
 import { TodosApiHandler } from './todo_apis'
 import { ScheduleApiHandlers } from './schedule_apis'
+import { config } from 'firebase-functions';
 
-const CONFIG = functions.config()
-console.log(CONFIG)
-const CLIENT_ID = CONFIG || CONFIG.google_calendar.client_id
-const CLIENT_SECRET = CONFIG || CONFIG.google_calendar.client_secret
+const CONFIG:config.Config = functions.config()
+console.log("config",CONFIG)
+const CREDENTIALS = CONFIG['google_calendar']
 
 const oauth2Client = new google.auth.OAuth2(
-    CLIENT_ID,
-    CLIENT_SECRET,
+    <string>(CREDENTIALS&&CREDENTIALS['client_id']),
+    <string>(CREDENTIALS &&CREDENTIALS['client_secret']),
     ""
 );
 

@@ -1,9 +1,10 @@
 import { Firestore } from "@google-cloud/firestore";
+import { UserRecord } from "firebase-functions/lib/providers/auth";
 
-const admin = require('firebase-admin')
+import * as admin from 'firebase-admin'
 
 export function onUserCreate(db: Firestore) {
-    return async ({uid}) => {
+    return async ({uid}: admin.auth.UserRecord) => {
         const userRecord = await admin.auth().getUser(uid);
         const uUser = {
             displayName: userRecord.displayName || `${userRecord.uid}`,
@@ -24,7 +25,7 @@ export function onUserCreate(db: Firestore) {
   }
 
 export function onUserDelete(db:Firestore) {
-    return async (userRecord) => {
+    return async (userRecord :UserRecord) => {
         try {
         await db
             .collection('users')

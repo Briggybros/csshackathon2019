@@ -12,6 +12,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@firebase/firestore-types": "^1.0.3"
+    "@firebase/firestore-types": "^1.0.3",
+    "firebase-functions": "^2.2.0"
   }
 }
