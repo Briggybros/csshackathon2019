@@ -1,8 +1,9 @@
 import { Timestamp, Firestore, CollectionReference, QueryDocumentSnapshot } from "@google-cloud/firestore";
+import { CallableContext } from "firebase-functions/lib/providers/https";
 
-const COLLECTION_NAME = 'schedules'
+export const COLLECTION_NAME = 'schedules'
 
-enum WeekDay {
+export enum WeekDay {
     monday = "monday",
     tuesday = "tuesday",
     wednesday = "wednesday",
@@ -35,7 +36,7 @@ interface Schedule {
  *  preferredTimes: { 'start' : integer, 'end': integer } // 24 hour format
  * }
  */
-function validateSchedule (schedule: Schedule) {
+export function validateSchedule (schedule: Schedule) {
     return  typeof schedule === 'object' &&
             schedule.desiredDurationMins &&
             schedule.name && 
@@ -46,7 +47,7 @@ function validateSchedule (schedule: Schedule) {
             typeof schedule.preferredHours === 'object'
 }
 
-function mapQueryToSchedule(s: QueryDocumentSnapshot): Schedule {
+export function mapQueryToSchedule(s: QueryDocumentSnapshot): Schedule {
     return {
         name: <string>s.get("name"),
         createdOn: <number>s.get("number"),
@@ -56,7 +57,7 @@ function mapQueryToSchedule(s: QueryDocumentSnapshot): Schedule {
         preferredHours: <HoursRange>s.get("preferredHours"),
     }
 }
-class SchedulesApi {
+export class SchedulesApi {
     private userSchedules: CollectionReference
     
     constructor(private db:Firestore, private userId: string) {
@@ -81,14 +82,33 @@ class SchedulesApi {
                 .then(mapQueryToSchedule)
     }
     
-    addSchedules(schedule) {
+    async addSchedules(schedule: Schedule) {
         if (!validateSchedule(schedule)) {
             return Promise.reject('not a valid schedule object')
         }
 
-        return this
+        return await this
             .userSchedules
             .doc()
             .set(schedule)
+    }
+}
+
+
+export class ScheduleApiHandlers {
+
+    constructor(private db:Firestore) {
+
+    }
+    addScheduleHandler(data: any, context: CallableContext): any {
+        return null
+    }
+    
+    deleteScheduleHandler(data: any, context: CallableContext): any {
+    
+    }
+    
+    getSchedulesHandler(data: any, context: CallableContext): any {
+    
     }
 }
