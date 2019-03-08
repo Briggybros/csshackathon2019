@@ -9,7 +9,7 @@
   "scripts": {
     "start": "webpack-dev-server --hot --open",
     "compile": "webpack -p",
-    "deploy": "",
+    "build:prod": "npm run clean && npm run test && npm run lint && npm run compile",
     "clean": "rimraf dist",
     "lint": "prettier --write 'src/**/*.ts' && tslint --test ./src",
     "test": "tsc --noEmit --skipLibCheck"
