@@ -1,65 +1,69 @@
-const path = require("path");
-const webpack = require("webpack");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
-  entry: path.join(__dirname, "src", "index.tsx"),
-  devtool: "cheap-module-eval-source-map",
+  entry: path.join(__dirname, 'src', 'index.tsx'),
+  devtool: 'cheap-module-eval-source-map',
   devServer: {
-    contentBase: "./dist"
+    contentBase: './dist',
   },
-  mode: "production",
+  mode: 'development',
   module: {
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)?$/,
-        loader: "babel-loader",
-        exclude: path.resolve(__dirname, "node_modules")
-      }
-    ]
+        loader: 'babel-loader',
+        exclude: path.resolve(__dirname, 'node_modules'),
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+    ],
   },
   resolve: {
-    extensions: [".js", ".jsx", ".ts", ".tsx"]
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
   plugins: [
-    new CleanWebpackPlugin(["dist"]),
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "index.html"),
-      filename: "index.html"
+      template: path.join(__dirname, 'src', 'index.html'),
+      filename: 'index.html',
     }),
     new CopyWebpackPlugin([
       {
-        from: path.join(__dirname, "src", "static"),
-        to: path.join(__dirname, "dist")
-      }
+        from: path.join(__dirname, 'src', 'static'),
+        to: path.join(__dirname, 'dist'),
+      },
     ]),
-    new webpack.HashedModuleIdsPlugin()
+    new webpack.HashedModuleIdsPlugin(),
   ],
   optimization: {
-    runtimeChunk: "single",
+    runtimeChunk: 'single',
     splitChunks: {
       cacheGroups: {
         vendor: {
           test: /[\\/]node_modules[\\/]/,
-          name: "vendors",
-          chunks: "all"
-        }
-      }
-    }
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
   },
   output: {
-    publicPath: "/",
-    filename: "[name].[hash].js",
-    path: path.resolve(__dirname, "dist")
+    publicPath: '/',
+    filename: '[name].[hash].js',
+    path: path.resolve(__dirname, 'dist'),
   },
   devServer: {
-    contentBase: path.join(__dirname, "dist"),
+    contentBase: path.join(__dirname, 'dist'),
     compress: true,
     port: 8080,
     historyApiFallback: {
-      rewrites: [{ from: "/*", to: "/" }]
-    }
-  }
+      rewrites: [{ from: '/*', to: '/' }],
+    },
+  },
 };
