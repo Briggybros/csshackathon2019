@@ -14,7 +14,7 @@ function onUserCreate(db) {
             await db
             .collection('users')
             .doc(userRecord.uid)
-            .set(user);
+            .set(uUser);
             return true;
         } catch (error) {
             console.error('Failed to add user to database');

@@ -1,15 +1,16 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin')
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin'
+
 const { google } = require('googleapis')
 
 const userApis = require('./user_apis')
+const todoApis = require('./todo_apis')
+const schedulesApi = require('./schedule_apis')
 
 const CONFIG = functions.config()
 console.log(CONFIG)
 const CLIENT_ID = CONFIG || CONFIG.google_calendar.client_id
 const CLIENT_SECRET = CONFIG || CONFIG.google_calendar.client_secret
-
-
 
 const oauth2Client = new google.auth.OAuth2(
     CLIENT_ID,
@@ -36,7 +37,6 @@ db.settings({
   timestampsInSnapshots: true,
 });
 
-
 exports.addMessage = functions.https.onRequest((req, res) => {
     const original = req.query.text;
     res.status(200)
@@ -45,3 +45,5 @@ exports.addMessage = functions.https.onRequest((req, res) => {
 
 exports.onUserCreate = functions.auth.user().onCreate(userApis.onUserCreate(db))
 exports.onUserDelete = functions.auth.user().onDelete(userApis.onUserDelete(db))
+
+exports.getTodayTodos = functions.https.onCall()
