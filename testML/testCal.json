@@ -1,0 +1,253 @@
+{
+  "kind": "calendar#events",
+  "etag": "\"p3248lvenhbpu00g\"",
+  "summary": "TiemlyCal",
+  "updated": "2019-03-08T17:36:50.677Z",
+  "timeZone": "Europe/London",
+  "accessRole": "reader",
+  "defaultReminders": [],
+  "nextSyncToken": "CIiK_deK8-ACEAAYAQ==",
+  "items": [
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104132921828000\"",
+      "id": "65d4rejgf8k62abmhuqt1eaq9m",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=NjVkNHJlamdmOGs2MmFibWh1cXQxZWFxOW0gbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:34:20.000Z",
+      "updated": "2019-03-08T17:34:20.914Z",
+      "summary": "Tiemly: Gym",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-04T11:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-04T12:00:00Z"
+      },
+      "iCalUID": "65d4rejgf8k62abmhuqt1eaq9m@google.com",
+      "sequence": 0,
+      "extendedProperties": {
+        "private": {
+          "everyoneDeclinedDismissed": "-1"
+        }
+      }
+    },
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104133009346000\"",
+      "id": "43fgp6252rejset76dmtmb2jgt",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=NDNmZ3A2MjUycmVqc2V0NzZkbXRtYjJqZ3QgbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:34:31.000Z",
+      "updated": "2019-03-08T17:35:04.673Z",
+      "summary": "Tiemly: Gym",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-05T12:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-05T13:00:00Z"
+      },
+      "iCalUID": "43fgp6252rejset76dmtmb2jgt@google.com",
+      "sequence": 1
+    },
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104133042210000\"",
+      "id": "24sghjst8nr5ms066rjiph2d51",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=MjRzZ2hqc3Q4bnI1bXMwNjZyamlwaDJkNTEgbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:35:13.000Z",
+      "updated": "2019-03-08T17:35:21.105Z",
+      "summary": "Tiemly: Gym",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-07T11:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-07T12:00:00Z"
+      },
+      "iCalUID": "24sghjst8nr5ms066rjiph2d51@google.com",
+      "sequence": 0
+    },
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104133094854000\"",
+      "id": "5br05noo3k8imh158ihchr6vln",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=NWJyMDVub28zazhpbWgxNThpaGNocjZ2bG4gbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:35:47.000Z",
+      "updated": "2019-03-08T17:35:47.427Z",
+      "summary": "Tiemly: Potato",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-08T13:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-08T14:00:00Z"
+      },
+      "iCalUID": "5br05noo3k8imh158ihchr6vln@google.com",
+      "sequence": 0,
+      "extendedProperties": {
+        "private": {
+          "everyoneDeclinedDismissed": "-1"
+        }
+      }
+    },
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104133151590000\"",
+      "id": "3a6eas5ij45o1al0mepnqd3mf9",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=M2E2ZWFzNWlqNDVvMWFsMG1lcG5xZDNtZjkgbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:35:55.000Z",
+      "updated": "2019-03-08T17:36:15.795Z",
+      "summary": "Tiemly: Potato",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-06T15:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-06T16:00:00Z"
+      },
+      "iCalUID": "3a6eas5ij45o1al0mepnqd3mf9@google.com",
+      "sequence": 0
+    },
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104133175504000\"",
+      "id": "1rqa83pobdk6or5vbv44g1qntr",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=MXJxYTgzcG9iZGs2b3I1dmJ2NDRnMXFudHIgbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:36:27.000Z",
+      "updated": "2019-03-08T17:36:27.752Z",
+      "summary": "Tiemly: Potato",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-05T13:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-05T14:00:00Z"
+      },
+      "iCalUID": "1rqa83pobdk6or5vbv44g1qntr@google.com",
+      "sequence": 0,
+      "extendedProperties": {
+        "private": {
+          "everyoneDeclinedDismissed": "-1"
+        }
+      }
+    },
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104133192436000\"",
+      "id": "5l9ck4c10ct9i66m81t0o81ft0",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=NWw5Y2s0YzEwY3Q5aTY2bTgxdDBvODFmdDAgbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:36:36.000Z",
+      "updated": "2019-03-08T17:36:36.218Z",
+      "summary": "Tiemly: Carrot",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-08T14:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-08T15:00:00Z"
+      },
+      "iCalUID": "5l9ck4c10ct9i66m81t0o81ft0@google.com",
+      "sequence": 0,
+      "extendedProperties": {
+        "private": {
+          "everyoneDeclinedDismissed": "-1"
+        }
+      }
+    },
+    {
+      "kind": "calendar#event",
+      "etag": "\"3104133221354000\"",
+      "id": "59i8f8f2dn91q69clrcn8tnnrr",
+      "status": "confirmed",
+      "htmlLink": "https://www.google.com/calendar/event?eid=NTlpOGY4ZjJkbjkxcTY5Y2xyY244dG5ucnIgbXkuYnJpc3RvbC5hYy51a183dDhjMmZnMGdwcHU0dHBrMWl1NnNwb2dmZ0Bn",
+      "created": "2019-03-08T17:36:50.000Z",
+      "updated": "2019-03-08T17:36:50.677Z",
+      "summary": "Tiemly: Yomama",
+      "creator": {
+        "email": "sm15504@my.bristol.ac.uk",
+        "displayName": "Sunny Miglani"
+      },
+      "organizer": {
+        "email": "my.bristol.ac.uk_7t8c2fg0gppu4tpk1iu6spogfg@group.calendar.google.com",
+        "displayName": "TiemlyCal",
+        "self": true
+      },
+      "start": {
+        "dateTime": "2019-03-06T00:00:00Z"
+      },
+      "end": {
+        "dateTime": "2019-03-06T01:00:00Z"
+      },
+      "iCalUID": "59i8f8f2dn91q69clrcn8tnnrr@google.com",
+      "sequence": 0,
+      "extendedProperties": {
+        "private": {
+          "everyoneDeclinedDismissed": "-1"
+        }
+      }
+    }
+  ]
+}
