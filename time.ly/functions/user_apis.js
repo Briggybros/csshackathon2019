@@ -7,15 +7,8 @@ function onUserCreate(db) {
         const userRecord = await admin.auth().getUser(uid);
         const uUser = {
             displayName: userRecord.displayName || `${userRecord.uid}`,
-
+            createdOn: new Date().getTime(),
         };
-    
-        const user = validateUser(uUser);
-    
-        if (!user) {
-            console.error('Signin created a bad user: ', uUser);
-            return false;
-        }
 
         try {
             await db
@@ -37,10 +30,10 @@ function onUserDelete(db) {
             .collection('users')
             .doc(userRecord.uid)
             .delete();
-        return true;
+            return true;
         } catch (error) {
-        console.error('Failed to delete user from database');
-        return false;
+            console.error('Failed to delete user from database');
+            return false;
         }
     };
 }
