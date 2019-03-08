@@ -6,7 +6,8 @@
   "scripts": {
     "deploy": "firebase deploy",
     "deploy:functions": "firebase deploy --only functions",
-    "deploy:web-app": "firebase deploy --only hosting"
+    "deploy:web-app": "firebase deploy --only hosting",
+    "serve:functions": "firebase serve --only functions --port 5000"
   },
   "author": "",
   "license": "UNLICENSED"
