@@ -1,8 +1,8 @@
-const { Firestore } = require('@google-cloud/firestore')
+import { Firestore } from "@google-cloud/firestore";
 
 const admin = require('firebase-admin')
 
-function onUserCreate(db) {
+export function onUserCreate(db: Firestore) {
     return async ({uid}) => {
         const userRecord = await admin.auth().getUser(uid);
         const uUser = {
@@ -23,7 +23,7 @@ function onUserCreate(db) {
     };
   }
 
-function onUserDelete(db) {
+export function onUserDelete(db:Firestore) {
     return async (userRecord) => {
         try {
         await db
@@ -37,6 +37,3 @@ function onUserDelete(db) {
         }
     };
 }
-
-exports.onUserCreate = onUserCreate
-exports.onUserDelete = onUserDelete

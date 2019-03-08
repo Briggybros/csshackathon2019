@@ -1,11 +1,14 @@
 import { Firestore, QueryDocumentSnapshot, DocumentReference } from "@google-cloud/firestore";
+import { CallableContext } from "firebase-functions/lib/providers/https";
 
 const dateutils = require('./dateutils.js')
 
 export interface Todo {
-    dateTime: number,
+    scheduledDateTime: number,
+    preferredDateTimes: Date[],
     weeklySequence: number,
     name: string,
+    scheduleId?: string
 }
 
 export interface TodoList {
@@ -16,7 +19,7 @@ export interface TodoList {
     todos: Todo[],
 }
 
-const TODOLIST_COLLECTION_NAME = "todolists"
+export const TODOLIST_COLLECTION_NAME = "todolists"
 
 export class DailyTodoListApi {
     constructor(private db:Firestore, private userId:string, private todoListRef:DocumentReference,private dateStart:Date, private dateEnd:Date) {
@@ -37,16 +40,15 @@ export class DailyTodoListApi {
     }
 }
 
-
 export class TodoListsApi {
     
-    constructor(private db:Firestore, private userId:string) {
+    constructor(private db:Firestore) {
         
     }
 
-    async createTodoListWithTodos(date:Date, todos: Todo[]) {
+    async createTodoListWithTodos(userId:string, date:Date, todos: Todo[]) {
         var newTodoList = {
-            userId: this.userId,
+            userId: userId,
             date: dateutils.yyyy_mm_dd(date),
             dateTime: date.getTime(),
             todos: todos,
@@ -57,10 +59,10 @@ export class TodoListsApi {
             .collection(TODOLIST_COLLECTION_NAME)
             .add(newTodoList)
             .then((docRef) => {
-                console.log('created new empty todolist for today for user', this.userId)
+                console.log('created new empty todolist for today for user', userId)
                 return new DailyTodoListApi(
                     this.db,
-                    this.userId,
+                    userId,
                     docRef,
                     dateRange.startDate,
                     dateRange.endDate,
@@ -71,14 +73,14 @@ export class TodoListsApi {
             })
     }
 
-    async createTodoList(date:Date) {
-        return this.createTodoListWithTodos(date, [])
+    async createTodoList(userId:string, date:Date) {
+        return this.createTodoListWithTodos(userId, date, [])
     }
 
-    async getTodayTodos() :Promise<QueryDocumentSnapshot> {
+    async getTodayTodos(userId:string) :Promise<QueryDocumentSnapshot> {
         const query = this.db
             .collection(TODOLIST_COLLECTION_NAME)
-            .where('userId', '==', this.userId)
+            .where('userId', '==', userId)
             .where('date', '==', dateutils.yyyy_mm_dd(new Date()))
             .orderBy('datetime')
             .limit(1)
@@ -88,11 +90,11 @@ export class TodoListsApi {
         })
     }
 
-    async getWeeklyTodos():Promise<any[]> {
+    async getWeeklyTodos(userId:string):Promise<any[]> {
         const dateRange = dateutils.thisWeeksDateRange()
         const query = this.db
             .collection(TODOLIST_COLLECTION_NAME)
-            .where('userId', '==', this.userId)
+            .where('userId', '==', userId)
             .where('date', '>=', dateutils.yyyy_mm_dd(dateRange.startDate))
             .where('date', '>=', dateutils.yyyy_mm_dd(dateRange.endDate))
             .limit(7)
@@ -105,3 +107,25 @@ export class TodoListsApi {
     }
 }
 
+
+
+
+
+export class TodosApiHandler {
+    constructor(private db: Firestore) {
+        
+    }
+
+    getTodaysTodosHandler(data:any, context:CallableContext): any {
+
+        return null
+    }
+    
+    getThisWeekTodosHandler(data: any, context: CallableContext): any {
+        return null
+    }
+    
+    addTodosHandler(data: any, context: CallableContext): any {
+        return null
+    }
+}
