@@ -94,7 +94,6 @@ export class SchedulesApi {
     }
 }
 
-
 export class ScheduleApiHandlers {
 
     constructor(private db: Firestore) {

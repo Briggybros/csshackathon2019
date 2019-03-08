@@ -2,25 +2,35 @@ import { Firestore, QueryDocumentSnapshot, DocumentReference } from "@google-clo
 import { CallableContext } from "firebase-functions/lib/providers/https";
 
 import * as dateutils from './dateutils.js'
+import { DocumentSnapshot } from "firebase-functions/lib/providers/firestore";
 
 export interface Todo {
     scheduledDateTime: number,
+    scheduledDurationMins: number, 
     preferredDateTimes: Date[],
     weeklySequence: number,
+    done: boolean,
     name: string,
     scheduleId?: string
 }
 
 export interface TodoList {
-    id: string,
+    id?: string,
     userId: string,
     date: string,
-    dateTime: Date,
     todos: Todo[],
 }
 
 export const TODOLIST_COLLECTION_NAME = "todolists"
 
+function mapDocToTodoList(doc: DocumentSnapshot) : TodoList {
+    return {
+        id: doc.id,
+        userId: doc.get("userId"),
+        date: doc.get("date"),
+        todos: doc.get("todos"),
+    }
+}
 export class DailyTodoListApi {
     constructor(private db:Firestore, private userId:string, private todoListRef:DocumentReference,private dateStart:Date, private dateEnd:Date) {
         this.db = db
@@ -47,10 +57,10 @@ export class TodoListsApi {
     }
 
     async createTodoListWithTodos(userId:string, date:Date, todos: Todo[]) {
-        var newTodoList = {
+        const newTodoList: TodoList = {
+            id: "",
             userId: userId,
             date: dateutils.yyyy_mm_dd(date),
-            dateTime: date.getTime(),
             todos: todos,
         }
 
@@ -77,7 +87,7 @@ export class TodoListsApi {
         return this.createTodoListWithTodos(userId, date, [])
     }
 
-    async getTodayTodos(userId:string) :Promise<QueryDocumentSnapshot> {
+    async getTodayTodos(userId:string) :Promise<TodoList> {
         const query = this.db
             .collection(TODOLIST_COLLECTION_NAME)
             .where('userId', '==', userId)
@@ -86,7 +96,7 @@ export class TodoListsApi {
             .limit(1)
         return query.get().then((result) => {
             console.log('finished querying data', result.docs[0])
-            return result.docs[0]
+            return mapDocToTodoList(result.docs[0])
         })
     }
 
@@ -100,16 +110,10 @@ export class TodoListsApi {
             .limit(7)
         return await query.get().then(result => {
             console.log("get weekly todos data", result.docs)
-            return result.docs.map(s => {
-                
-            })
+            return result.docs.map(mapDocToTodoList)
         })
     }
 }
-
-
-
-
 
 export class TodosApiHandler {
     constructor(private db: Firestore) {
@@ -117,7 +121,6 @@ export class TodosApiHandler {
     }
 
     getTodaysTodosHandler(data:any, context:CallableContext): any {
-
         return null
     }
     
