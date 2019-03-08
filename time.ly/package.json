@@ -10,5 +10,8 @@
     "serve:functions": "firebase serve --only functions --port 5000"
   },
   "author": "",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@firebase/firestore-types": "^1.0.3"
+  }
 }
