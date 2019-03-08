@@ -1,9 +1,9 @@
 const dateutils = require('./dateutils.js')
 
 class DailyTodoListApi {
-    constructor(db, userId, todoListId, dateStart, dateEnd) {
+    constructor(db, userId, todoListRef, dateStart, dateEnd) {
         this.db = db
-        this.todoListId = todoListId
+        this.todoListRef = todoListRef
         this.userId = userId
         this.dateStart = dateStart
         this.dateEnd = dateEnd
@@ -18,30 +18,73 @@ class DailyTodoListApi {
     }
 
     getTodos() {
-
+        this.db.collection("todolists")
+            .doc()
     }
 }
 
-function CreateNewTodoList() {
+const COLLECTION_NAME = "todolists"
 
-}
 class TodoListsApi {
+    
     constuctor(db, userId) {
         this.db = db
     }
 
+    createTodoListWithTodos(date, todos) {
+        var newTodoList = {
+            userId: this.userId,
+            date: dateutils.yyyy_mm_dd(d),
+            dateTime: date.getTime(),
+            todos: todos,
+        }
+
+        var dateRange = dateutils.todaysDateRange
+        return this.db
+            .collection(COLLECTION_NAME)
+            .add(newTodoList)
+            .then((docRef) => {
+                console.log('created new empty todolist for today for user', this.userId)
+                return new DailyTodoListApi(
+                    this.db,
+                    this.userId,
+                    docRef,
+                    dateRange.startDate,
+                    dateRange.endDate,
+                )
+            })
+            .catch(err => {
+                console.log("error creating new todolist", err)
+            })
+    }
+
     createTodoList(date) {
-        
+        return this.createTodoListWithTodos(date, [])
     }
 
     getTodayTodos() {
-        dateRange = todaysDateRange()
-        dailyTodo = new DailyTodoListApi(this.db, userId, dateRange.startDate, dateRange.endDate)
-        return dailyTodo
+        const query = this.db
+            .collection(COLLECTION_NAME)
+            .where('userId', '==', this.userId)
+            .where('date', '==', dateutils.yyyy_mm_dd(new Date()))
+            .orderBy('datetime')
+            .limit(1)
+        return query.then((result) => {
+            console.log('finished querying data', result.data())
+        })
     }
 
     getWeeklyTodos() {
-
+        const dateRange = dateutils.thisWeeksDateRange()
+        const query = this.db
+            .collection(COLLECTION_NAME)
+            .where('userId', '==', this.userId)
+            .where('date', '>=', dateutils.yyyy_mm_dd(dateRange.startDate))
+            .where('date', '>=', dateutils.yyyy_mm_dd(dateRange.endDate))
+            .limit(7)
+        return query.then(result => {
+            console.log("get weekly todos data", result.data())
+        })
     }
 
     registerFunctionEndpoints(exports, functions) {
