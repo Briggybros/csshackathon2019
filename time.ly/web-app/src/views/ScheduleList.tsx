@@ -33,7 +33,9 @@ export const ScheduleList = ({ user }: Props) => {
 
   return (
     <>
-      <ScheduleButton>Schedule Now!</ScheduleButton>
+      <ScheduleButton onClick={() => {
+        functions().httpsCallable('makeWeeklyTodoLists')();
+      }}>Schedule Now!</ScheduleButton>
       {schedules.map(schedule => (
         <Entry key={schedule.name}>
           <Info>
