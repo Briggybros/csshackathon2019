@@ -20,12 +20,19 @@ const UndoneIcon = styled(MdRadioButtonUnchecked)`
   margin-right: 0.75rem;
 `;
 
+interface TodoList {
+  date: string;
+  id: string;
+  userId: string;
+  todos: Todo[];
+}
+
 interface Props {
   user: firebase.User | null;
 }
 
 export const TodoList = ({ user }: Props) => {
-  const [todoList, setTodoList] = React.useState<Todo[]>([]);
+  const [todoList, setTodoList] = React.useState<TodoList[]>([]);
 
   React.useEffect(() => {
     if (user) {
@@ -42,32 +49,52 @@ export const TodoList = ({ user }: Props) => {
     }
   }, [user]);
 
+  console.log(todoList);
+
   return (
     <>
-      {todoList.map(todo => (
-        <Entry key={todo.name}>
-          <Item
-            onClick={() => {
-              setTodoList([
-                {
-                  ...todo,
-                  done: !todo.done,
-                },
-              ]);
-            }}
-          >
-            {todo.done ? <DoneIcon /> : <UndoneIcon />}
-            <Info>
-              <Name>{todo.name}</Name>
-              <Description>
-                At {new Date(todo.datetime).getHours()}:00 for {todo.duration}{' '}
-                hour
-                {todo.duration !== 1 && 's'}
-              </Description>
-            </Info>
-          </Item>
-        </Entry>
-      ))}
+      {todoList &&
+        todoList.length > 0 &&
+        todoList[0].todos.map(todo => (
+          <Entry key={todo.name}>
+            <Item
+              onClick={() => {
+                if (!todo.done) {
+                  functions()
+                    .httpsCallable('markTodoAsDone')({
+                      todoListId: todoList[0].id,
+                      todoId: todo.todoId,
+                    })
+                    .then(() =>
+                      setTodoList([
+                        {
+                          ...todoList[0],
+                          todos: todoList[0].todos.map(mtodo => {
+                            if (mtodo.todoId === todo.todoId) {
+                              return { ...mtodo, done: !mtodo.done };
+                            } else {
+                              return mtodo;
+                            }
+                          }),
+                        },
+                      ])
+                    )
+                    .catch(console.error);
+                }
+              }}
+            >
+              {todo.done ? <DoneIcon /> : <UndoneIcon />}
+              <Info>
+                <Name>{todo.name}</Name>
+                <Description>
+                  At {new Date(todo.scheduledDateTime).getHours()}:00 for{' '}
+                  {todo.scheduledDurationMins / 60} hour
+                  {todo.scheduledDurationMins / 60 !== 1 && 's'}
+                </Description>
+              </Info>
+            </Item>
+          </Entry>
+        ))}
       <Footer />
     </>
   );

@@ -3,9 +3,10 @@ export interface Map<T> {
 }
 
 export interface Todo {
+  todoId: string;
   name: string;
-  datetime: number;
-  duration: number;
+  scheduledDateTime: number;
+  scheduledDurationMins: number;
   done: boolean;
 }
 
