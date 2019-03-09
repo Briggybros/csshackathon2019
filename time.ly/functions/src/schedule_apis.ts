@@ -72,7 +72,7 @@ export function mapQueryToSchedule(s: DocumentSnapshot): Schedule {
   };
 }
 
-async function getUserSchedulesCollection(
+export async function getUserSchedulesCollection(
   db: Firestore,
   userId: string
 ): Promise<CollectionReference> {
@@ -127,7 +127,7 @@ export class SchedulesApi {
     if (this.userSchedules == null) {
       return Promise.reject();
     }
-    console.log("addSchedules-schedule", schedule)
+    console.log('addSchedules-schedule', schedule);
     if (!validateSchedule(schedule)) {
       return Promise.reject('not a valid schedule object');
     }
@@ -173,12 +173,7 @@ export class ScheduleApiHandlers {
     if (context.auth == null) {
       return { status: 'forbidden', code: 403, message: 'login first' };
     }
-    const {
-      name,
-      weeklyFrequency,
-      preferredDays,
-      preferredHours,
-    } = data;
+    const { name, weeklyFrequency, preferredDays, preferredHours } = data;
     try {
       console.log('scheduleHandlers-db', this.db);
       const ref = await getUserSchedulesCollection(this.db, context.auth.uid);
