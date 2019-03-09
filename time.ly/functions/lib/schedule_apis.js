@@ -30,24 +30,25 @@ var WeekDay;
  * }
  */
 function validateSchedule(schedule) {
-    return typeof schedule === 'object' &&
+    return (typeof schedule === 'object' &&
         schedule.desiredDurationMins &&
         schedule.name &&
         schedule.createdOn &&
         schedule.weeklyFrequency &&
         schedule.preferredDays &&
         Array.isArray(schedule.preferredDays) &&
-        typeof schedule.preferredHours === 'object';
+        typeof schedule.preferredHours === 'object');
 }
 exports.validateSchedule = validateSchedule;
 function mapQueryToSchedule(s) {
     return {
-        name: s.get("name"),
-        createdOn: s.get("number"),
-        desiredDurationMins: s.get("desiredDurationMins"),
-        weeklyFrequency: s.get("weeklyFrequency"),
-        preferredDays: s.get("preferredDays"),
-        preferredHours: s.get("preferredHours"),
+        name: s.get('name'),
+        createdOn: s.get('number'),
+        desiredDurationMins: s.get('desiredDurationMins'),
+        weeklyFrequency: s.get('weeklyFrequency'),
+        preferredDays: s.get('preferredDays'),
+        preferredHours: s.get('preferredHours'),
+        deleted: s.get('deleted'),
     };
 }
 exports.mapQueryToSchedule = mapQueryToSchedule;
@@ -57,51 +58,173 @@ class SchedulesApi {
         this.userId = userId;
         this.db = db;
         this.userId = userId;
-        this.userSchedules = db
-            .collection('users')
-            .doc(this.userId)
-            .collection(exports.COLLECTION_NAME);
+        const userDoc = db.collection('users').doc(this.userId);
+        userDoc
+            .get()
+            .then(doc => {
+            if (!doc.exists) {
+                throw new Error('User does not exist!');
+            }
+            else {
+                this.userSchedules = db
+                    .collection('users')
+                    .doc(this.userId)
+                    .collection(exports.COLLECTION_NAME);
+            }
+        })
+            .catch(err => {
+            return { status: 'error', code: 404, message: 'no user' };
+        });
     }
     schedules() {
         return __awaiter(this, void 0, void 0, function* () {
+            if (this.userSchedules == null) {
+                return Promise.reject();
+            }
             return yield this.userSchedules.get().then(result => {
-                return result.docs.map(mapQueryToSchedule);
+                return result.docs.map(mapQueryToSchedule).filter(s => !s.deleted);
             });
         });
     }
     scheduleById(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (this.userSchedules == null) {
+                return Promise.reject();
+            }
             return yield this.userSchedules
                 .doc(id)
                 .get()
                 .then(mapQueryToSchedule);
         });
     }
+    deleteSchedule(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.userSchedules == null) {
+                return Promise.reject();
+            }
+            return yield this.userSchedules.doc(id).update({ deleted: true });
+        });
+    }
     addSchedules(schedule) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (this.userSchedules == null) {
+                return Promise.reject();
+            }
             if (!validateSchedule(schedule)) {
                 return Promise.reject('not a valid schedule object');
             }
-            return yield this
-                .userSchedules
-                .doc()
-                .set(schedule);
+            const schedDocRef = this.userSchedules.doc();
+            const result = yield schedDocRef.set(schedule);
+            return { scheduleId: schedDocRef.id };
         });
     }
 }
 exports.SchedulesApi = SchedulesApi;
+/*
+
+  Requests coming in from the frontend
+{
+
+    data {
+        userId,
+        scheduleId,
+    }
+
+    data {
+      userId
+      activityName,
+      duration,
+      weeklyFrequency,
+      preferredDays,
+      preferredHours
+    }
+}
+
+
+*/
 class ScheduleApiHandlers {
     constructor(db) {
         this.db = db;
     }
     addScheduleHandler(data, context) {
-        return null;
+        return __awaiter(this, void 0, void 0, function* () {
+            const { userId, activityName, duration, weeklyFrequency, preferredDays, preferredHours, } = data;
+            const schedulerApi = new SchedulesApi(this.db, userId);
+            const schedule = {
+                name: activityName,
+                createdOn: new Date().getTime(),
+                desiredDurationMins: duration,
+                weeklyFrequency: weeklyFrequency,
+                preferredDays: preferredDays,
+                preferredHours: preferredHours,
+                deleted: false,
+            };
+            try {
+                return schedulerApi.addSchedules(schedule);
+            }
+            catch (_a) {
+                return { status: 'error', code: 404, message: 'no user' };
+            }
+        });
     }
     deleteScheduleHandler(data, context) {
-        return null;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!context.auth) {
+                return {
+                    status: 'forbidden',
+                    code: 403,
+                    message: "You're not authorised",
+                };
+            }
+            const userId = context.auth.uid;
+            const { scheduleId } = data;
+            try {
+                const schedulerApi = new SchedulesApi(this.db, userId);
+                return schedulerApi.deleteSchedule(scheduleId);
+            }
+            catch (_a) {
+                return { status: 'error', code: 404, message: 'no user' };
+            }
+        });
     }
-    getSchedulesHandler(data, context) {
-        return null;
+    getScheduleHandler(data, context) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { scheduleId } = data;
+            if (!context.auth) {
+                return {
+                    status: 'forbidden',
+                    code: 403,
+                    message: "You're not authorised",
+                };
+            }
+            const userId = context.auth.uid;
+            try {
+                const schedulerApi = new SchedulesApi(this.db, userId);
+                return schedulerApi.scheduleById(scheduleId);
+            }
+            catch (e) {
+                return { status: 'error', code: 404, message: 'no user' };
+            }
+        });
+    }
+    getAllSchedulesHandler(data, context) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!context.auth) {
+                return {
+                    status: 'forbidden',
+                    code: 403,
+                    message: "You're not authorised",
+                };
+            }
+            const userId = context.auth.uid;
+            try {
+                const schedulerApi = new SchedulesApi(this.db, userId);
+                return schedulerApi.schedules();
+            }
+            catch (e) {
+                return { status: 'error', code: 404, message: 'no user' };
+            }
+        });
     }
 }
 exports.ScheduleApiHandlers = ScheduleApiHandlers;
