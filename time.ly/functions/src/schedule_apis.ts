@@ -185,7 +185,15 @@ export class ScheduleApiHandlers {
     data: any,
     context: CallableContext
   ): Promise<any> {
-    const { userId, scheduleId } = data;
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
+    }
+    const userId = context.auth.uid;
+    const { scheduleId } = data;
     try {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.deleteSchedule(scheduleId);
@@ -195,7 +203,16 @@ export class ScheduleApiHandlers {
   }
 
   async getSchedulesHandler(data: any, context: CallableContext): Promise<any> {
-    const { userId, scheduleId } = data;
+    const { scheduleId } = data;
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
+    }
+    const userId = context.auth.uid;
+
     try {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.scheduleById(scheduleId);
