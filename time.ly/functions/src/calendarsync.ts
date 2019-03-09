@@ -16,6 +16,30 @@ export class CalendarSync {
     }
     
     async syncWeeklyTodos(todoLists: todoListApis.TodoList[]) : Promise<any> {
+        for(let i = 0; i < todoLists.length; i++) {
+            let todos = todoLists[i].todos
+            if(!todos) {
+                continue
+            }
+
+            for(let j = 0; j < todos.length; j++) {
+                let todo:todoListApis.Todo = todos[j]
+                const start: Date = new Date(todo.scheduledDateTime)
+                const end: Date = new Date(start.setMinutes(start.getMinutes() + todo.scheduledDurationMins))
+                await this.calendarClient.events.insert({
+                    calendarId: "primary",
+                    requestBody: {
+                        start: { dateTime: start.toISOString()},
+                        end: { dateTime: end.toISOString()},
+                        summary: todo.name,
+                        reminders: {
+                            useDefault: true,
+                        }
+                    },
+                    sendNotifications: true,
+                })
+            }
+        }
         return Promise.resolve({ success: true})
     }
 
@@ -26,5 +50,5 @@ export class CalendarSync {
         })
         return events.data.items
     }
-    
+
 }
