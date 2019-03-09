@@ -229,7 +229,7 @@ export class TodosApiHandler {
     return todoListApiDB;
   }
 
-  tickToDo = async (data: any, context: CallableContext): any => {
+  tickToDo = async (data: any, context: CallableContext): Promise<any> => {
     const { todoId } = data;
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
