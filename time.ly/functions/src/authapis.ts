@@ -9,6 +9,7 @@ export class AuthApis {
     }
 
     async handleStoreToken(data: any, context: CallableContext): Promise<any> {
+        console.log("handle store token data", JSON.stringify(data))
         const { code, accessToken, refreshToken } = data
         if(context.auth == null) {
             return Promise.reject("not logged in")

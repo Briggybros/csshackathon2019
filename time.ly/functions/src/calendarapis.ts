@@ -26,7 +26,7 @@ export class CalendarApis {
                 accessToken: userDoc.get("accessToken"),
                 refreshToken: userDoc.get("refreshToken"),
             }))
-
+        console.log("getPrimaryCalendar-cred set credentials", cred)
         oauthClient.setCredentials({
             refresh_token: cred.refreshToken,
             access_token: cred.accessToken,
