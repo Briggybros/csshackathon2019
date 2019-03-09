@@ -92,5 +92,5 @@ exports.makeWeeklyTodoLists = functions.https.onCall(
 )
 
 exports.onCreateTodoList = functions.firestore
-  .document("todolists")
+  .document("todolists/{todoListId}")
   .onCreate(calenderApis.syncCalendarHandler)

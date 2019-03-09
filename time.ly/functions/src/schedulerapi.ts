@@ -65,10 +65,10 @@ export class SchedularApis {
       const schedulesApi = new SchedulesApi(this.db, ref);
       const calendarApis = new CalendarApis(this.db)
       const schedules = await schedulesApi.schedules();
-      
+      const calendar = await calendarApis.getPrimaryCalendar(userId)
       // TODO: Call python script and AWAIT
       
-      const returnedTodos: TodoList[] = await this.generateTodoList(userId, schedules)
+      const returnedTodos: TodoList[] = await this.generateTodoList(userId, calendar)
 
       const todoAPI = new TodoListsApi(this.db);
       for (var i = 0; i < returnedTodos.length; i++) {
