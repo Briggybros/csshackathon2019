@@ -1,20 +1,9 @@
 import * as React from 'react';
 import { auth } from 'firebase';
-import FirebaseAuth from 'react-firebaseui/FirebaseAuth';
+import * as firebase from 'firebase';
 
-export default () => (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      width: 'fit-content',
-      height: 'fit-content',
-      alignSelf: 'center',
-      marginTop: 'auto',
-      marginBottom: 'auto',
-    }}
-  >
-    <FirebaseAuth
+{
+  /* <FirebaseAuth
       uiConfig={{
         signInFlow: 'popup',
         signInSuccessUrl: '/',
@@ -29,6 +18,45 @@ export default () => (
         ],
       }}
       firebaseAuth={auth()}
-    />
+    /> */
+}
+
+function logIn() {
+  let provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('https://www.googleapis.com/auth/calendar');
+  provider.addScope('https://www.googleapis.com/auth/calendar.events');
+
+  firebase
+    .auth()
+    .signInWithPopup(provider)
+    .then(result => {
+      // @ts-ignore
+      if (result.user) {
+        const credentials = {
+          ...result.credential,
+          refreshToken: result.user.refreshToken,
+        };
+        firebase
+          .functions()
+          .httpsCallable('storeAuthTokens')(credentials)
+          .catch(console.error);
+      }
+    })
+    .catch(console.error);
+}
+
+export default () => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: 'fit-content',
+      height: 'fit-content',
+      alignSelf: 'center',
+      marginTop: 'auto',
+      marginBottom: 'auto',
+    }}
+  >
+    <button onClick={logIn}>Log in with Google</button>
   </div>
 );
