@@ -92,7 +92,7 @@ export class SchedulesApi {
         }
       })
       .catch(err => {
-        throw err;
+        return { status: 'error', code: 404, message: 'no user' };
       });
   }
 
@@ -207,7 +207,7 @@ export class ScheduleApiHandlers {
     }
   }
 
-  async getSchedulesHandler(data: any, context: CallableContext): Promise<any> {
+  async getScheduleHandler(data: any, context: CallableContext): Promise<any> {
     const { scheduleId } = data;
     if (!context.auth) {
       return {
@@ -221,6 +221,26 @@ export class ScheduleApiHandlers {
     try {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.scheduleById(scheduleId);
+    } catch (e) {
+      return { status: 'error', code: 404, message: 'no user' };
+    }
+  }
+
+  async getAllSchedulesHandler(
+    data: any,
+    context: CallableContext
+  ): Promise<any> {
+    if (!context.auth) {
+      return {
+        status: 'forbidden',
+        code: 403,
+        message: "You're not authorised",
+      };
+    }
+    const userId = context.auth.uid;
+    try {
+      const schedulerApi = new SchedulesApi(this.db, userId);
+      return schedulerApi.schedules();
     } catch (e) {
       return { status: 'error', code: 404, message: 'no user' };
     }

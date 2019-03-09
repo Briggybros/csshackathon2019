@@ -17,9 +17,9 @@ export function todaysDateRange(): DateRange {
   return dateRangeForDate(new Date());
 }
 
-export function getMonday(d: Date): Date {
-  d = new Date(d);
-  var day = d.getDay(),
+export function getMonday(dd: Date): Date {
+  let d = new Date(dd);
+  let day = d.getDay(),
     diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
   d = new Date(d.setDate(diff));
   d.setHours(0, 0, 0, 0);
