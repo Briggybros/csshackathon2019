@@ -1,25 +1,22 @@
 import * as React from 'react';
-import { auth } from 'firebase';
 import * as firebase from 'firebase';
+import styled from 'styled-components';
 
-{
-  /* <FirebaseAuth
-      uiConfig={{
-        signInFlow: 'popup',
-        signInSuccessUrl: '/',
-        signInOptions: [
-          {
-            provider: auth.GoogleAuthProvider.PROVIDER_ID,
-            scopes: [
-              'https://www.googleapis.com/auth/calendar',
-              'https://www.googleapis.com/auth/calendar.events',
-            ],
-          },
-        ],
-      }}
-      firebaseAuth={auth()}
-    /> */
-}
+const LoginButton = styled.button`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  background: white;
+  border-radius: 25px;
+  border: 2px solid lightgray;
+`;
+
+const GoogleLogo = styled.img`
+  height: 1rem;
+  margin-right: 0.5rem;
+`;
 
 function logIn() {
   let provider = new firebase.auth.GoogleAuthProvider();
@@ -57,6 +54,9 @@ export default () => (
       marginBottom: 'auto',
     }}
   >
-    <button onClick={logIn}>Log in with Google</button>
+    <LoginButton onClick={logIn}>
+      <GoogleLogo src="https://developers.google.com/identity/images/g-logo.png" />
+      Sign in with Google
+    </LoginButton>
   </div>
 );
