@@ -39,12 +39,15 @@ export function makeTodoLists(userId: string, gentodos: GeneratedTodo[]): TodoLi
 
 export class SchedularApis {
   constructor(private db: Firestore) {}
-    generateTodoList = async (userId: string, schedules: Schedule[]): Promise<TodoList[]> => {
+    generateTodoList = async (userId: string, schedules: Schedule[], calendar: any): Promise<TodoList[]> => {
       const url = "https://us-central1-boeing2019hackathon.cloudfunctions.net/scheduleMachineLearn/"
       return await gaxios.instance.request({
         url: url,
         method: "POST",
-        data: schedules,
+        data: {
+          schedules: schedules,
+          calendar:calendar,
+        },
       }).then(res => {
         return makeTodoLists(userId, <GeneratedTodo[]>res.data)
       })
@@ -66,10 +69,12 @@ export class SchedularApis {
       const schedulesApi = new SchedulesApi(this.db, ref);
       const calendarApis = new CalendarApis(this.db)
       const schedules = await schedulesApi.schedules();
+      console.log("weeklyTodoListsHandler-schedules", schedules)
       const calendar = await calendarApis.getPrimaryCalendar(userId)
+      console.log("weeklyTodoListsHandler-calendar", calendar)
       // TODO: Call python script and AWAIT
       
-      const returnedTodos: TodoList[] = await this.generateTodoList(userId, calendar)
+      const returnedTodos: TodoList[] = await this.generateTodoList(userId, schedules, calendar)
 
       const todoAPI = new TodoListsApi(this.db);
       for (var i = 0; i < returnedTodos.length; i++) {

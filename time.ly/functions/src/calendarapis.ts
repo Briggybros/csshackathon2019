@@ -26,7 +26,7 @@ export class CalendarApis {
                 accessToken: userDoc.get("accessToken"),
                 refreshToken: userDoc.get("refreshToken"),
             }))
-
+        console.log("getPrimaryCalendar-cred set credentials", cred)
         oauthClient.setCredentials({
             refresh_token: cred.refreshToken,
             access_token: cred.accessToken,
@@ -37,13 +37,19 @@ export class CalendarApis {
     }
 
     async syncCalendarHandler(doc: DocumentSnapshot, context: functions.EventContext) {
+        let userId: string = ""
         if (context.auth == null) {
-            return Promise.reject(
-                new functions.https.HttpsError('unauthenticated', "not logged in")
-            )
+            userId = doc.get("userId")
+            if(!userId) {
+                return Promise.reject(
+                    new functions.https.HttpsError('unauthenticated', "not logged in")
+                )
+            }
         }
-    
-        const userId = context.auth.uid
+        else {
+            userId = context.auth.uid
+        }
+        
         const oauthClient = new google.auth.OAuth2({
             clientId: '',
             clientSecret: '',

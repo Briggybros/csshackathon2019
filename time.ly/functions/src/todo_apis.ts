@@ -52,7 +52,7 @@ export function mapDocToTodoList(doc: DocumentSnapshot): TodoList {
     id: doc.id,
     userId: doc.get('userId'),
     date: doc.get('date'),
-    todos: doc.get('todos').map(mapToTodoItem),
+    todos: [],
   };
 }
 
@@ -142,13 +142,18 @@ export class TodoListsApi {
     const query = this.db
       .collection(TODOLIST_COLLECTION_NAME)
       .where('userId', '==', userId)
-      .where('date', '==', dateutils.yyyy_mm_dd(new Date()))
-      .orderBy('datetime')
-      .limit(1);
-    return query.get().then(result => {
-      if (result.size < 0) {
+      .where('date', '==', dateutils.yyyy_mm_dd(new Date()));
+    return query.get().then(async result => {
+      console.log("getTodayTodos-size", result.size)
+      if (result.docs.length <= 0) {
         return <TodoList[]>[]
       }
+      const doc = result.docs[0]
+      const todosDoc = await doc.ref
+        .collection("todos")
+        .get()
+      const todoList = mapDocToTodoList(doc)
+
       return result.docs.map(mapDocToTodoList)
     });
   };
@@ -211,7 +216,7 @@ export class TodosApiHandler {
       };
     }
     const userId = context.auth.uid;
-    return listsApi.getWeeklyTodos(userId);
+    return await listsApi.getWeeklyTodos(userId);
   };
 
   addTodosHandler(data: any, context: CallableContext): any {
