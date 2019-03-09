@@ -62,6 +62,7 @@ export const TodoList = ({ user }: Props) => {
                 if (!todo.done) {
                   functions()
                     .httpsCallable('markTodoAsDone')({
+                      todoListId: todoList[0].id,
                       todoId: todo.todoId,
                     })
                     .then(() =>
