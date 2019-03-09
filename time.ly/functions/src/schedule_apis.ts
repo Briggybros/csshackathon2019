@@ -72,28 +72,26 @@ export function mapQueryToSchedule(s: DocumentSnapshot): Schedule {
     deleted: <boolean>s.get('deleted'),
   };
 }
-export class SchedulesApi {
-  private userSchedules?: CollectionReference;
 
-  constructor(private db: Firestore, private userId: string) {
+async function getUserSchedulesCollection(db: Firestore, userId: string): Promise<CollectionReference> {
+  const userDoc = db.collection("users").doc(userId);
+  return await userDoc
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        throw new Error("User does not exist!");
+      } else {
+        return db
+          .collection("users")
+          .doc(userId)
+          .collection(COLLECTION_NAME);
+      }
+    })
+}
+
+export class SchedulesApi {
+  constructor(private db: Firestore, private userSchedules: CollectionReference) {
     this.db = db;
-    this.userId = userId;
-    const userDoc = db.collection("users").doc(this.userId);
-    userDoc
-      .get()
-      .then(doc => {
-        if (!doc.exists) {
-          throw new Error("User does not exist!");
-        } else {
-          this.userSchedules = db
-            .collection("users")
-            .doc(this.userId)
-            .collection(COLLECTION_NAME);
-        }
-      })
-      .catch(err => {
-        return { status: "error", code: 404, message: "no user" };
-      });
   }
 
   async schedules(): Promise<Schedule[]> {
@@ -161,25 +159,29 @@ export class SchedulesApi {
 export class ScheduleApiHandlers {
   constructor(private db: Firestore) {}
   async addScheduleHandler(data: any, context: CallableContext): Promise<any> {
+    if(context.auth == null) {
+      return { status: "forbidden", code: 403, message: "login first" }
+    }
     const {
-      userId,
       activityName,
       duration,
       weeklyFrequency,
       preferredDays,
       preferredHours,
     } = data;
-    const schedulerApi = new SchedulesApi(this.db, userId);
-    const schedule: Schedule = {
-      name: activityName,
-      createdOn: new Date().getTime(),
-      desiredDurationMins: duration,
-      weeklyFrequency: weeklyFrequency,
-      preferredDays: preferredDays,
-      preferredHours: preferredHours,
-      deleted: false,
-    };
     try {
+      const ref = await getUserSchedulesCollection(this.db, context.auth.uid)
+      const schedulerApi = new SchedulesApi(this.db, ref);
+      const schedule: Schedule = {
+        name: activityName,
+        createdOn: new Date().getTime(),
+        desiredDurationMins: duration,
+        weeklyFrequency: weeklyFrequency,
+        preferredDays: preferredDays,
+        preferredHours: preferredHours,
+        deleted: false,
+      };
+    
       return schedulerApi.addSchedules(schedule);
     } catch {
       return { status: 'error', code: 404, message: 'no user' };
@@ -200,7 +202,8 @@ export class ScheduleApiHandlers {
     const userId = context.auth.uid;
     const { scheduleId } = data;
     try {
-      const schedulerApi = new SchedulesApi(this.db, userId);
+      const ref = await getUserSchedulesCollection(this.db, userId)
+      const schedulerApi = new SchedulesApi(this.db, ref);
       return schedulerApi.deleteSchedule(scheduleId);
     } catch {
       return { status: 'error', code: 404, message: 'no user' };
@@ -219,9 +222,11 @@ export class ScheduleApiHandlers {
     const userId = context.auth.uid;
 
     try {
-      const schedulerApi = new SchedulesApi(this.db, userId);
+      const ref = await getUserSchedulesCollection(this.db, userId)
+      const schedulerApi = new SchedulesApi(this.db, ref);
       return schedulerApi.scheduleById(scheduleId);
     } catch (e) {
+      console.error(e)
       return { status: 'error', code: 404, message: 'no user' };
     }
   }
@@ -239,7 +244,8 @@ export class ScheduleApiHandlers {
     }
     const userId = context.auth.uid;
     try {
-      const schedulerApi = new SchedulesApi(this.db, userId);
+      const ref = await getUserSchedulesCollection(this.db, userId)
+      const schedulerApi = new SchedulesApi(this.db, ref);
       return schedulerApi.schedules();
     } catch (e) {
       return { status: "error", code: 404, message: "no user" };
