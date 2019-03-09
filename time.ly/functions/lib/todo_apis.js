@@ -17,9 +17,9 @@ function mapToTodoItem(doc) {
         scheduledDurationMins: doc.get('scheduledDurationMins'),
         done: doc.get('done'),
         todoId: doc.id,
-        name: doc.get("name"),
-        scheduleId: doc.get("scheduleId"),
-        doneAt: doc.get("doneAt")
+        name: doc.get('name'),
+        scheduleId: doc.get('scheduleId'),
+        doneAt: doc.get('doneAt'),
     };
 }
 function mapDocToTodoList(doc) {
@@ -150,9 +150,7 @@ exports.TodoListsApi = TodoListsApi;
 class TodosApiHandler {
     constructor(db) {
         this.db = db;
-    }
-    getTodaysTodosHandler(data, context) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.getTodaysTodosHandler = (data, context) => __awaiter(this, void 0, void 0, function* () {
             const listsApi = new TodoListsApi(this.db);
             if (!context.auth) {
                 return {
@@ -164,9 +162,7 @@ class TodosApiHandler {
             const userId = context.auth.uid;
             return listsApi.getTodayTodos(userId);
         });
-    }
-    getThisWeekTodosHandler(data, context) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.getThisWeekTodosHandler = (data, context) => __awaiter(this, void 0, void 0, function* () {
             const listsApi = new TodoListsApi(this.db);
             if (!context.auth) {
                 return {
@@ -177,6 +173,19 @@ class TodosApiHandler {
             }
             const userId = context.auth.uid;
             return listsApi.getWeeklyTodos(userId);
+        });
+        this.tickToDo = (data, context) => __awaiter(this, void 0, void 0, function* () {
+            const { todoId } = data;
+            const listsApi = new TodoListsApi(this.db);
+            if (!context.auth) {
+                return {
+                    status: 'forbidden',
+                    code: 403,
+                    message: "You're not authorised",
+                };
+            }
+            const userId = context.auth.uid;
+            return listsApi.tickTodo(todoId);
         });
     }
     addTodosHandler(data, context) {
@@ -201,19 +210,6 @@ class TodosApiHandler {
             thisToDo,
         ]);
         return todoListApiDB;
-    }
-    tickToDo(data, context) {
-        const { todoId } = data;
-        const listsApi = new TodoListsApi(this.db);
-        if (!context.auth) {
-            return {
-                status: "forbidden",
-                code: 403,
-                message: "You're not authorised"
-            };
-        }
-        const userId = context.auth.uid;
-        return listsApi.tickTodo(todoId);
     }
 }
 exports.TodosApiHandler = TodosApiHandler;

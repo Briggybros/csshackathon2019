@@ -66,7 +66,7 @@ export class DailyTodoListApi {
     this.dateEnd = dateEnd;
   }
 
-  async getTodos(): Promise<any[]> {
+  getTodos = async (): Promise<any[]> => {
     return await this.db
       .collection(TODOLIST_COLLECTION_NAME)
       .where('userId', '==', this.userId)
@@ -74,9 +74,9 @@ export class DailyTodoListApi {
       .then(data => {
         return data.docs.map(s => s.data);
       });
-  }
+  };
 
-  async addTodos(todos: Todo[]): Promise<any> {
+  addTodos = async (todos: Todo[]): Promise<any> => {
     const todosRef = this.todoListRef.collection(TODOS_COLLECTION_NAME);
     const batch = this.db.batch();
     for (let i = 0; i < todos.length; i++) {
@@ -84,13 +84,17 @@ export class DailyTodoListApi {
       batch.set(singleTodoRef, todos[i]);
     }
     return batch.commit();
-  }
+  };
 }
 
 export class TodoListsApi {
   constructor(private db: Firestore) {}
 
-  async createTodoListWithTodos(userId: string, date: Date, todos: Todo[]) {
+  createTodoListWithTodos = async (
+    userId: string,
+    date: Date,
+    todos: Todo[]
+  ) => {
     const newTodoList: TodoList = {
       id: '',
       userId: userId,
@@ -116,20 +120,20 @@ export class TodoListsApi {
       .catch(err => {
         console.log('error creating new todolist', err);
       });
-  }
+  };
 
-  async tickTodo(todoId: string): Promise<any> {
+  tickTodo = async (todoId: string): Promise<any> => {
     return await this.db
       .collection(TODOS_COLLECTION_NAME)
       .doc(todoId)
       .update({ done: true, doneAt: new Date() });
-  }
+  };
 
-  async createTodoList(userId: string, date: Date) {
+  createTodoList = async (userId: string, date: Date) => {
     return this.createTodoListWithTodos(userId, date, []);
-  }
+  };
 
-  async getTodayTodos(userId: string): Promise<TodoList> {
+  getTodayTodos = async (userId: string): Promise<TodoList> => {
     const query = this.db
       .collection(TODOLIST_COLLECTION_NAME)
       .where('userId', '==', userId)
@@ -140,9 +144,9 @@ export class TodoListsApi {
       console.log('finished querying data', result.docs[0]);
       return mapDocToTodoList(result.docs[0]);
     });
-  }
+  };
 
-  async getWeeklyTodos(userId: string): Promise<any[]> {
+  getWeeklyTodos = async (userId: string): Promise<any[]> => {
     const dateRange = dateutils.thisWeeksDateRange();
     const query = this.db
       .collection(TODOLIST_COLLECTION_NAME)
@@ -154,7 +158,7 @@ export class TodoListsApi {
       console.log('get weekly todos data', result.docs);
       return result.docs.map(mapDocToTodoList);
     });
-  }
+  };
 }
 
 /**
