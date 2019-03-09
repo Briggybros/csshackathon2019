@@ -26,4 +26,5 @@ export class CalendarSync {
         })
         return events.data.items
     }
+    
 }

@@ -13,6 +13,7 @@ export class AuthApis {
         if(context.auth == null) {
             return Promise.reject("not logged in")
         }
+        
         const userId = context.auth.uid
         try {
             await this.db

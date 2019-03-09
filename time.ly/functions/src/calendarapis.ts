@@ -3,15 +3,15 @@ import { CallableContext } from 'firebase-functions/lib/providers/https';
 import * as functions from 'firebase-functions'
 import {google} from 'googleapis'
 import { CalendarSync } from './calendarsync'
-import { user } from 'firebase-functions/lib/providers/auth';
+
+
 export class CalendarApis {
-    constructor(private db: Firestore) {
-    }
+    constructor(private db: Firestore) {}
     
     async SyncCalendarHandler(data: any, context: CallableContext) {
         if (context.auth == null) {
             return Promise.reject(
-                new functions.https.HttpsError('permission-denied', "not logged in")
+                new functions.https.HttpsError('unauthenticated', "not logged in")
             )
         }
         const userId = context.auth.uid
@@ -37,13 +37,18 @@ export class CalendarApis {
                 access_token: cred.accessToken,
             })
             const calendarSync = new CalendarSync(userId, oauthClient)
-            await calendarSync.syncWeeklyTodos
+            //await calendarSync.syncWeeklyTodos()
         } catch(e) {
             console.error("SyncCalendarHandler-", e)
+            return new functions.https.HttpsError("unavailable","")
         }
     }
 
-    async scheduleEvents(data: any, context: CallableContext) {
+    async scheduleEventsHandler(data: any, context: CallableContext) {
 
+    }
+
+    async getEventsHandler(data: any, context: CallableContext) {
+        
     }
 }
