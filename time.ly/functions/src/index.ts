@@ -9,7 +9,7 @@ import { ScheduleApiHandlers } from "./schedule_apis";
 
 import { AuthApis } from './authapis'
 import { CalendarApis } from './calendarapis'
-
+import { SchedularApis } from './schedulerapi'
 const CONFIG = functions.config();
 console.log("config", CONFIG);
 const CREDENTIALS = CONFIG["google_calendar"];
@@ -58,7 +58,8 @@ exports.onUserDelete = functions.auth
 const todosHandlers = new TodosApiHandler(db);
 const scheduleHandlers = new ScheduleApiHandlers(db);
 const authApis = new AuthApis(db, CLIENT_ID, CLIENT_SECRET)
-const calendarApis = new CalendarApis(db)
+const schedulersApis = new SchedularApis(db)
+
 console.log("scheduleHandlers", scheduleHandlers)
 
 exports.getTodaysTodosForUser = functions.https.onCall(
@@ -86,10 +87,6 @@ exports.storeAuthTokens = functions.https.onCall(
   authApis.handleStoreToken
 )
 
-exports.syncTodosToCalender = functions.https.onCall(
-  cal
-)
-
-exports.getCalendarEvents = functions.https.onCall(
-
+exports.makeWeeklyTodoLists = functions.https.onCall(
+  schedulersApis.weeklyTodoListsHandler
 )

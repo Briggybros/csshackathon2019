@@ -4,9 +4,12 @@ import * as functions from 'firebase-functions'
 import {google} from 'googleapis'
 import { CalendarSync } from './calendarsync'
 
+import { yyyy_mm_dd } from './dateutils'
 
 export class CalendarApis {
-    constructor(private db: Firestore) {}
+    constructor(private db: Firestore) {
+        this.SyncCalendarHandler = this.SyncCalendarHandler.bind(this)
+    }
     
     async SyncCalendarHandler(data: any, context: CallableContext) {
         if (context.auth == null) {
@@ -31,24 +34,26 @@ export class CalendarApis {
                     refreshToken: userDoc.get("refreshToken"),
                 }))
 
-
             oauthClient.setCredentials({
                 refresh_token: cred.refreshToken,
                 access_token: cred.accessToken,
             })
             const calendarSync = new CalendarSync(userId, oauthClient)
-            //await calendarSync.syncWeeklyTodos()
+            return await calendarSync.syncWeeklyTodos([{
+                id: "1234",
+                userId: "1234",
+                date: yyyy_mm_dd(new Date()),
+                todos: [{
+                    todoId: '12345',
+                    scheduledDateTime: new Date().getTime(),
+                    done: false,
+                    scheduledDurationMins: 60,
+                    name: 'gym',
+                }]
+            }])
         } catch(e) {
             console.error("SyncCalendarHandler-", e)
             return new functions.https.HttpsError("unavailable","")
         }
-    }
-
-    async scheduleEventsHandler(data: any, context: CallableContext) {
-        
-    }
-
-    async getEventsHandler(data: any, context: CallableContext) {
-        
     }
 }

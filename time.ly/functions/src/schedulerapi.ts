@@ -7,8 +7,8 @@ import { CalendarSync } from './calendarsync';
 import { google } from 'googleapis';
 
 export class SchedularApis {
-  constructor(private db: Firestore) {
-    const weeklyTodoListsHandler = async (
+  constructor(private db: Firestore) {}
+    weeklyTodoListsHandler = async (
       data: any,
       context: CallableContext
     ): Promise<any> => {
@@ -60,4 +60,3 @@ export class SchedularApis {
       await calendarSync.syncWeeklyTodos(returnedTodos);
     };
   }
-}
