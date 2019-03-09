@@ -81,14 +81,17 @@ export class SchedulesApi {
     const userDoc = db.collection("users").doc(this.userId);
     userDoc.get().then(doc => {
       if (!doc.exists) {
-        throw "User does not exist!";
+        throw new Error("User does not exist!");
       } else {
         this.userSchedules = db
           .collection("users")
           .doc(this.userId)
           .collection(COLLECTION_NAME);
       }
-    });
+    })
+    .catch(err => {
+      throw err
+    })
   }
 
   async schedules(): Promise<Schedule[]> {
