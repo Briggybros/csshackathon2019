@@ -58,14 +58,6 @@ export class SchedularApis {
       const calendarSync = new CalendarSync(userId, oauthClient);
 
       await calendarSync.syncWeeklyTodos(returnedTodos);
-      /**
-       * 1. Read userId from context
-       * 2. Load [schedules]
-       * 3. call python script (with whatever context / json)
-       * 4. recieve the output, toDo strucutre
-       * 5. use Todo apis to save todo to database
-       * 6. sync events to calendar!
-       */
     };
   }
 }
