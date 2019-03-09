@@ -32,7 +32,7 @@ interface Props {
 }
 
 export const TodoList = ({ user }: Props) => {
-  const [todoList, setTodoList] = React.useState<TodoList | null>(null);
+  const [todoList, setTodoList] = React.useState<TodoList[]>([]);
 
   React.useEffect(() => {
     if (user) {
@@ -49,23 +49,37 @@ export const TodoList = ({ user }: Props) => {
     }
   }, [user]);
 
+  console.log(todoList);
+
   return (
     <>
       {todoList &&
-        todoList.todos.map(todo => (
+        todoList.length > 0 &&
+        todoList[0].todos.map(todo => (
           <Entry key={todo.name}>
             <Item
               onClick={() => {
-                setTodoList({
-                  ...todoList,
-                  todos: todoList.todos.map(mtodo => {
-                    if (mtodo.todoId === todo.todoId) {
-                      return { ...mtodo, done: !mtodo.done };
-                    } else {
-                      return mtodo;
-                    }
-                  }),
-                });
+                if (!todo.done) {
+                  functions()
+                    .httpsCallable('markTodoAsDone')({
+                      todoId: todo.todoId,
+                    })
+                    .then(() =>
+                      setTodoList([
+                        {
+                          ...todoList[0],
+                          todos: todoList[0].todos.map(mtodo => {
+                            if (mtodo.todoId === todo.todoId) {
+                              return { ...mtodo, done: !mtodo.done };
+                            } else {
+                              return mtodo;
+                            }
+                          }),
+                        },
+                      ])
+                    )
+                    .catch(console.error);
+                }
               }}
             >
               {todo.done ? <DoneIcon /> : <UndoneIcon />}
@@ -73,8 +87,8 @@ export const TodoList = ({ user }: Props) => {
                 <Name>{todo.name}</Name>
                 <Description>
                   At {new Date(todo.scheduledDateTime).getHours()}:00 for{' '}
-                  {todo.scheduledDuration / 60} hour
-                  {todo.scheduledDuration / 60 !== 1 && 's'}
+                  {todo.scheduledDurationMins / 60} hour
+                  {todo.scheduledDurationMins / 60 !== 1 && 's'}
                 </Description>
               </Info>
             </Item>

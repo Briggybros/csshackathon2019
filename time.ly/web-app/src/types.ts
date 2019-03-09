@@ -6,7 +6,7 @@ export interface Todo {
   todoId: string;
   name: string;
   scheduledDateTime: number;
-  scheduledDuration: number;
+  scheduledDurationMins: number;
   done: boolean;
 }
 
