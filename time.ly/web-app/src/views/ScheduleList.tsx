@@ -1,38 +1,42 @@
 import * as React from 'react';
-
+import { functions } from 'firebase';
 import { Entry, Info, Name, Description } from '../components/List';
 import { Footer } from '../components/Footer';
 
-import { days } from '../util';
+import { days, capitalise } from '../util';
 import { Map, Schedule } from '../types';
 
-export const ScheduleList = () => {
-  const [scheduleMap, setScheduleMap] = React.useState<Map<Schedule>>({
-    ididd: {
-      name: 'Go to the gym',
-      createdOn: Date.now(),
-      weeklyFrequency: 3,
-      preferredDays: [0, 1, 2, 3, 4],
-      preferredHours: {
-        from: 7,
-        to: 21,
-      },
-    },
-  });
+interface Props {
+  user: firebase.User;
+}
+
+export const ScheduleList = ({ user }: Props) => {
+  const [schedules, setSchedules] = React.useState<Schedule[]>([]);
+
+  React.useEffect(() => {
+    if (user) {
+      functions()
+        .httpsCallable('getAllSchedulesForUser')()
+        .then(response => {
+          return setSchedules(response.data);
+        })
+        .catch(console.error);
+    }
+  }, [user]);
 
   return (
     <>
-      {Object.entries(scheduleMap).map(([id, schedule]) => (
-        <Entry key={id}>
+      {schedules.map(schedule => (
+        <Entry key={schedule.name}>
           <Info>
             <Name>{schedule.name}</Name>
             <Description>
               {schedule.weeklyFrequency === 1
                 ? 'Once'
                 : `${schedule.weeklyFrequency} times`}{' '}
-              a week between {schedule.preferredHours.from}:00 and{' '}
-              {schedule.preferredHours.to}:00 on{' '}
-              {schedule.preferredDays.map(day => `${days[day]} `)}
+              a week between {schedule.preferredHours.start}:00 and{' '}
+              {schedule.preferredHours.end}:00 on{' '}
+              {schedule.preferredDays.map(day => `${capitalise(day)} `)}
             </Description>
           </Info>
         </Entry>

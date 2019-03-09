@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { Button } from '../components/Buttons';
 
-import { days, hours } from '../util';
+import { days, hours, capitalise } from '../util';
 import { Schedule } from '../types';
 
 const Row = styled.span`
@@ -42,12 +42,11 @@ interface Props {
 export const AddSchedule = ({ history }: Props) => {
   const [schedule, setSchedule] = React.useState<Schedule>({
     name: 'New Schedule',
-    createdOn: Date.now(),
     weeklyFrequency: 1,
-    preferredDays: [0],
+    preferredDays: ['monday'],
     preferredHours: {
-      from: 6,
-      to: 21,
+      start: 6,
+      end: 21,
     },
   });
 
@@ -80,24 +79,27 @@ export const AddSchedule = ({ history }: Props) => {
             <span key={day}>
               <input
                 type="checkbox"
-                checked={schedule.preferredDays.includes(idx)}
+                checked={schedule.preferredDays.includes(day.toLowerCase())}
                 onChange={e => {
                   if (e.target.checked) {
                     setSchedule({
                       ...schedule,
-                      preferredDays: [...schedule.preferredDays, idx],
+                      preferredDays: [
+                        ...schedule.preferredDays,
+                        day.toLowerCase(),
+                      ],
                     });
                   } else {
                     setSchedule({
                       ...schedule,
                       preferredDays: schedule.preferredDays.filter(
-                        day => day !== idx
+                        fday => fday !== day.toLowerCase()
                       ),
                     });
                   }
                 }}
               />
-              {day}
+              {capitalise(day)}
             </span>
           ))}
         </DayList>
@@ -106,15 +108,15 @@ export const AddSchedule = ({ history }: Props) => {
         <label>Preferred Hours:</label>
       </Row>
       <Row>
-        <label>From:</label>
+        <label>Start:</label>
         <select
-          value={schedule.preferredHours.from}
+          value={schedule.preferredHours.start}
           onChange={e =>
             setSchedule({
               ...schedule,
               preferredHours: {
-                from: parseInt(e.target.value),
-                to: schedule.preferredHours.to,
+                start: parseInt(e.target.value),
+                end: schedule.preferredHours.end,
               },
             })
           }
@@ -127,15 +129,15 @@ export const AddSchedule = ({ history }: Props) => {
         </select>
       </Row>
       <Row>
-        <label>To:</label>
+        <label>End:</label>
         <select
-          value={schedule.preferredHours.to}
+          value={schedule.preferredHours.end}
           onChange={e =>
             setSchedule({
               ...schedule,
               preferredHours: {
-                from: schedule.preferredHours.from,
-                to: parseInt(e.target.value),
+                start: schedule.preferredHours.start,
+                end: parseInt(e.target.value),
               },
             })
           }
@@ -153,7 +155,11 @@ export const AddSchedule = ({ history }: Props) => {
             functions()
               .httpsCallable('addScheduleForUser')(schedule)
               .then(response => {
-                history.push('/');
+                if (response.data.status === 'error') {
+                  console.error(response.data.message);
+                } else {
+                  history.push('/');
+                }
               })
               .catch(console.error)
           }

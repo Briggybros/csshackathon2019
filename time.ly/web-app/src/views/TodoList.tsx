@@ -25,21 +25,18 @@ interface Props {
 }
 
 export const TodoList = ({ user }: Props) => {
-  const [todoList, setTodoList] = React.useState<Todo[]>([
-    {
-      name: 'Go to the gym',
-      datetime: Date.now(),
-      duration: 1,
-      done: false,
-    },
-  ]);
+  const [todoList, setTodoList] = React.useState<Todo[]>([]);
 
   React.useEffect(() => {
     if (user) {
       functions()
         .httpsCallable('getTodaysTodosForUser')()
         .then(response => {
-          // return setTodoList(response.data.todolist);
+          if (!response.data) {
+            console.error('No data');
+            return;
+          }
+          return setTodoList(response.data);
         })
         .catch(console.error);
     }
