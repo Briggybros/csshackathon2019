@@ -17,6 +17,7 @@ export interface Todo {
   todoId?: string;
   name: string;
   scheduleId?: string;
+  doneAt?: Date;
 }
 
 export interface TodoList {
@@ -35,8 +36,9 @@ function mapToTodoItem(doc: DocumentSnapshot): Todo {
     scheduledDurationMins: doc.get('scheduledDurationMins'),
     done: doc.get('done'),
     todoId: doc.id,
-    name: doc.get('name'),
-    scheduleId: doc.get('scheduleId'),
+    name: doc.get("name"),
+    scheduleId: doc.get("scheduleId"),
+    doneAt: doc.get("doneAt")
   };
 }
 
@@ -88,7 +90,7 @@ export class DailyTodoListApi {
     return await this.todoListRef
       .collection(TODOS_COLLECTION_NAME)
       .doc(todoId)
-      .update({ done: true });
+      .update({ done: true, doneAt: new Date() });
   }
 }
 
@@ -155,6 +157,16 @@ export class TodoListsApi {
   }
 }
 
+/**
+ *    data
+ *        {
+ *        name,
+ *        datetime,
+ *        duration,
+ *        done
+ *        }
+ *
+ */
 export class TodosApiHandler {
   constructor(private db: Firestore) {}
 
@@ -190,17 +202,6 @@ export class TodosApiHandler {
     return listsApi.getWeeklyTodos(userId);
   }
 
-  /**
-   *    data
-   *        {
-   *        name,
-   *        datetime,
-   *        duration,
-   *        done
-   *        }
-   *
-   */
-
   addTodosHandler(data: any, context: CallableContext): any {
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
@@ -224,7 +225,7 @@ export class TodosApiHandler {
       thisToDo,
     ]);
 
-    return null;
+    return todoListApiDB;
   }
 }
 
@@ -234,18 +235,4 @@ export class TodosApiHandler {
  *          - Get ToDoLIST
  *              - Get ToDo
  * 3. Fix createTodoListWithTodos
- * 
- * export interface Todo {
-  scheduledDateTime: number;
-  scheduledDurationMins: number;
-  done: boolean;
-  name: string;
-  scheduleId?: string;
-
-  --- TODO: Sunny
-    - Check for IDs for each ToDo Type
-    - Find a way to make sure it's marked done
-    - Add a way to add a way to check if it was done when it was supposed to
-
-}
-    */
+ */
