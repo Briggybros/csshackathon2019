@@ -45,7 +45,7 @@ export class CalendarApis {
     }
 
     async scheduleEventsHandler(data: any, context: CallableContext) {
-
+        
     }
 
     async getEventsHandler(data: any, context: CallableContext) {
