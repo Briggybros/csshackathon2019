@@ -81,14 +81,17 @@ export class SchedulesApi {
     const userDoc = db.collection("users").doc(this.userId);
     userDoc.get().then(doc => {
       if (!doc.exists) {
-        throw "User does not exist!";
+        throw new Error("User does not exist!");
       } else {
         this.userSchedules = db
           .collection("users")
           .doc(this.userId)
           .collection(COLLECTION_NAME);
       }
-    });
+    })
+    .catch(err => {
+      throw err
+    })
   }
 
   async schedules(): Promise<Schedule[]> {
@@ -185,7 +188,15 @@ export class ScheduleApiHandlers {
     data: any,
     context: CallableContext
   ): Promise<any> {
-    const { userId, scheduleId } = data;
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
+    }
+    const userId = context.auth.uid;
+    const { scheduleId } = data;
     try {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.deleteSchedule(scheduleId);
@@ -195,7 +206,16 @@ export class ScheduleApiHandlers {
   }
 
   async getSchedulesHandler(data: any, context: CallableContext): Promise<any> {
-    const { userId, scheduleId } = data;
+    const { scheduleId } = data;
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
+    }
+    const userId = context.auth.uid;
+
     try {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.scheduleById(scheduleId);

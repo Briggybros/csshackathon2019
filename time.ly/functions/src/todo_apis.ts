@@ -1,134 +1,251 @@
-import { Firestore, QueryDocumentSnapshot, DocumentReference } from "@google-cloud/firestore";
+import {
+  Firestore,
+  QueryDocumentSnapshot,
+  DocumentReference
+} from "@google-cloud/firestore";
 import { CallableContext } from "firebase-functions/lib/providers/https";
 
-import * as dateutils from './dateutils.js'
+import * as dateutils from "./dateutils.js";
 import { DocumentSnapshot } from "firebase-functions/lib/providers/firestore";
+import { UserDimensions } from "firebase-functions/lib/providers/analytics";
+import { user } from "firebase-functions/lib/providers/auth";
 
 export interface Todo {
-    scheduledDateTime: number,
-    scheduledDurationMins: number, 
-    preferredDateTimes: Date[],
-    weeklySequence: number,
-    done: boolean,
-    name: string,
-    scheduleId?: string
+  scheduledDateTime: number;
+  scheduledDurationMins: number;
+  done: boolean;
+  todoId?: string;
+  name: string;
+  scheduleId?: string;
 }
 
 export interface TodoList {
-    id?: string,
-    userId: string,
-    date: string,
-    todos: Todo[],
+  id?: string;
+  userId: string;
+  date: string;
+  todos: Todo[];
 }
 
-export const TODOLIST_COLLECTION_NAME = "todolists"
+export const TODOLIST_COLLECTION_NAME = "todolists";
+export const TODOS_COLLECTION_NAME = "todos";
 
-function mapDocToTodoList(doc: DocumentSnapshot) : TodoList {
-    return {
-        id: doc.id,
-        userId: doc.get("userId"),
-        date: doc.get("date"),
-        todos: doc.get("todos"),
-    }
+function mapToTodoItem(doc: DocumentSnapshot): Todo {
+  return {
+    scheduledDateTime: doc.get("scheduledDateTime"),
+    scheduledDurationMins: doc.get("scheduledDurationMins"),
+    done: doc.get("done"),
+    todoId: doc.id,
+    name: doc.get("name"),
+    scheduleId: doc.get("scheduleId")
+  };
 }
+
+function mapDocToTodoList(doc: DocumentSnapshot): TodoList {
+  return {
+    id: doc.id,
+    userId: doc.get("userId"),
+    date: doc.get("date"),
+    todos: doc.get("todos").map(mapToTodoItem)
+  };
+}
+
 export class DailyTodoListApi {
-    constructor(private db:Firestore, private userId:string, private todoListRef:DocumentReference,private dateStart:Date, private dateEnd:Date) {
-        this.db = db
-        this.todoListRef = todoListRef
-        this.userId = userId
-        this.dateStart = dateStart
-        this.dateEnd = dateEnd
-    }
+  constructor(
+    private db: Firestore,
+    private userId: string,
+    private todoListRef: DocumentReference,
+    private dateStart: Date,
+    private dateEnd: Date
+  ) {
+    this.db = db;
+    this.todoListRef = todoListRef;
+    this.userId = userId;
+    this.dateStart = dateStart;
+    this.dateEnd = dateEnd;
+  }
 
-    async todos():Promise<any[]> {
-        return await this.db.collection(TODOLIST_COLLECTION_NAME)
-            .where("userId", "==", this.userId)
-            .get()
-            .then(data => {
-                return data.docs.map(s => s.data)
-            })
+  async getTodos(): Promise<any[]> {
+    return await this.db
+      .collection(TODOLIST_COLLECTION_NAME)
+      .where("userId", "==", this.userId)
+      .get()
+      .then(data => {
+        return data.docs.map(s => s.data);
+      });
+  }
+
+  async addTodos(todos: Todo[]): Promise<any> {
+    const todosRef = this.todoListRef.collection(TODOS_COLLECTION_NAME);
+    const batch = this.db.batch();
+    for (let i = 0; i < todos.length; i++) {
+      const singleTodoRef = todosRef.doc();
+      batch.set(singleTodoRef, todos[i]);
     }
+    return batch.commit();
+  }
+
+  async tickTodo(todoId: string): Promise<any> {
+    return await this.todoListRef
+      .collection(TODOS_COLLECTION_NAME)
+      .doc(todoId)
+      .update({ done: true });
+  }
 }
 
 export class TodoListsApi {
-    
-    constructor(private db:Firestore) {
-        
-    }
+  constructor(private db: Firestore) {}
 
-    async createTodoListWithTodos(userId:string, date:Date, todos: Todo[]) {
-        const newTodoList: TodoList = {
-            id: "",
-            userId: userId,
-            date: dateutils.yyyy_mm_dd(date),
-            todos: todos,
-        }
+  async createTodoListWithTodos(userId: string, date: Date, todos: Todo[]) {
+    const newTodoList: TodoList = {
+      id: "",
+      userId: userId,
+      date: dateutils.yyyy_mm_dd(date),
+      todos: todos
+    };
 
-        var dateRange = dateutils.todaysDateRange()
-        return await this.db
-            .collection(TODOLIST_COLLECTION_NAME)
-            .add(newTodoList)
-            .then((docRef) => {
-                console.log('created new empty todolist for today for user', userId)
-                return new DailyTodoListApi(
-                    this.db,
-                    userId,
-                    docRef,
-                    dateRange.startDate,
-                    dateRange.endDate,
-                )
-            })
-            .catch(err => {
-                console.log("error creating new todolist", err)
-            })
-    }
+    var dateRange = dateutils.todaysDateRange();
+    return await this.db
+      .collection(TODOLIST_COLLECTION_NAME)
+      .add(newTodoList)
+      .then(docRef => {
+        console.log("created new empty todolist for today for user", userId);
+        const todoListApi = new DailyTodoListApi(
+          this.db,
+          userId,
+          docRef,
+          dateRange.startDate,
+          dateRange.endDate
+        );
+        return todoListApi.addTodos(todos);
+      })
+      .catch(err => {
+        console.log("error creating new todolist", err);
+      });
+  }
 
-    async createTodoList(userId:string, date:Date) {
-        return this.createTodoListWithTodos(userId, date, [])
-    }
+  async createTodoList(userId: string, date: Date) {
+    return this.createTodoListWithTodos(userId, date, []);
+  }
 
-    async getTodayTodos(userId:string) :Promise<TodoList> {
-        const query = this.db
-            .collection(TODOLIST_COLLECTION_NAME)
-            .where('userId', '==', userId)
-            .where('date', '==', dateutils.yyyy_mm_dd(new Date()))
-            .orderBy('datetime')
-            .limit(1)
-        return query.get().then((result) => {
-            console.log('finished querying data', result.docs[0])
-            return mapDocToTodoList(result.docs[0])
-        })
-    }
+  async getTodayTodos(userId: string): Promise<TodoList> {
+    const query = this.db
+      .collection(TODOLIST_COLLECTION_NAME)
+      .where("userId", "==", userId)
+      .where("date", "==", dateutils.yyyy_mm_dd(new Date()))
+      .orderBy("datetime")
+      .limit(1);
+    return query.get().then(result => {
+      console.log("finished querying data", result.docs[0]);
+      return mapDocToTodoList(result.docs[0]);
+    });
+  }
 
-    async getWeeklyTodos(userId:string):Promise<any[]> {
-        const dateRange = dateutils.thisWeeksDateRange()
-        const query = this.db
-            .collection(TODOLIST_COLLECTION_NAME)
-            .where('userId', '==', userId)
-            .where('date', '>=', dateutils.yyyy_mm_dd(dateRange.startDate))
-            .where('date', '>=', dateutils.yyyy_mm_dd(dateRange.endDate))
-            .limit(7)
-        return await query.get().then(result => {
-            console.log("get weekly todos data", result.docs)
-            return result.docs.map(mapDocToTodoList)
-        })
-    }
+  async getWeeklyTodos(userId: string): Promise<any[]> {
+    const dateRange = dateutils.thisWeeksDateRange();
+    const query = this.db
+      .collection(TODOLIST_COLLECTION_NAME)
+      .where("userId", "==", userId)
+      .where("date", ">=", dateutils.yyyy_mm_dd(dateRange.startDate))
+      .where("date", "<=", dateutils.yyyy_mm_dd(dateRange.endDate))
+      .limit(7);
+    return await query.get().then(result => {
+      console.log("get weekly todos data", result.docs);
+      return result.docs.map(mapDocToTodoList);
+    });
+  }
 }
 
 export class TodosApiHandler {
-    constructor(private db: Firestore) {
-        
-    }
+  constructor(private db: Firestore) {}
 
-    getTodaysTodosHandler(data:any, context:CallableContext): any {
-        return null
+  async getTodaysTodosHandler(
+    data: any,
+    context: CallableContext
+  ): Promise<any> {
+    const listsApi = new TodoListsApi(this.db);
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
     }
-    
-    getThisWeekTodosHandler(data: any, context: CallableContext): any {
-        return null
+    const userId = context.auth.uid;
+    return listsApi.getTodayTodos(userId);
+  }
+
+  async getThisWeekTodosHandler(
+    data: any,
+    context: CallableContext
+  ): Promise<any> {
+    const listsApi = new TodoListsApi(this.db);
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
     }
-    
-    addTodosHandler(data: any, context: CallableContext): any {
-        return null
+    const userId = context.auth.uid;
+    return listsApi.getWeeklyTodos(userId);
+  }
+
+  /**
+   *    data
+   *        {
+   *        name,
+   *        datetime,
+   *        duration,
+   *        done
+   *        }
+   *
+   */
+
+  addTodosHandler(data: any, context: CallableContext): any {
+    const listsApi = new TodoListsApi(this.db);
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
     }
+    const userId = context.auth.uid;
+    const { name, datetime, duration, scheduleId } = data;
+    const thisToDo: Todo = {
+      scheduledDateTime: datetime,
+      scheduledDurationMins: duration,
+      done: false,
+      name: name,
+      scheduleId: scheduleId
+    };
+
+    const todoListApiDB = listsApi.createTodoListWithTodos(userId, datetime, [
+      thisToDo
+    ]);
+
+    return null;
+  }
 }
+
+/** TODO:
+ * 2. Front end handlers
+ *    - Get TODOLISTS
+ *          - Get ToDoLIST
+ *              - Get ToDo
+ * 3. Fix createTodoListWithTodos
+ * 
+ * export interface Todo {
+  scheduledDateTime: number;
+  scheduledDurationMins: number;
+  done: boolean;
+  name: string;
+  scheduleId?: string;
+
+  --- TODO: Sunny
+    - Check for IDs for each ToDo Type
+    - Find a way to make sure it's marked done
+    - Add a way to add a way to check if it was done when it was supposed to
+
+}
+    */
