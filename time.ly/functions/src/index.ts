@@ -69,6 +69,9 @@ exports.addScheduleForUser = functions.https.onCall(
 exports.deleteScheduleForUser = functions.https.onCall(
   scheduleHandlers.deleteScheduleHandler
 );
-exports.getSchedulesForUser = functions.https.onCall(
+exports.getScheduleForUser = functions.https.onCall(
   scheduleHandlers.getScheduleHandler
 );
+exports.getAllSchedulesForUser = functions.https.onCall(
+  scheduleHandlers.getAllSchedulesHandler
+)

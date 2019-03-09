@@ -10,7 +10,7 @@ export function onUserCreate(db: Firestore) {
       displayName: userRecord.displayName || `${userRecord.uid}`,
       createdOn: new Date().getTime(),
     };
-
+    console.log("onUserCreate", admin.auth)
     try {
       await db
         .collection('users')

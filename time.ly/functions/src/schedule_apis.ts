@@ -175,8 +175,7 @@ export class ScheduleApiHandlers {
       return { status: 'forbidden', code: 403, message: 'login first' };
     }
     const {
-      activityName,
-      duration,
+      name,
       weeklyFrequency,
       preferredDays,
       preferredHours,
@@ -188,9 +187,9 @@ export class ScheduleApiHandlers {
       console.log('users ref', ref);
       const schedulerApi = new SchedulesApi(this.db, ref);
       const schedule: Schedule = {
-        name: activityName,
+        name: name,
         createdOn: new Date().getTime(),
-        desiredDurationMins: duration,
+        desiredDurationMins: 60,
         weeklyFrequency: weeklyFrequency,
         preferredDays: preferredDays,
         preferredHours: preferredHours,
