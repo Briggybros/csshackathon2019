@@ -35,7 +35,7 @@ export interface GetTodoListsResult {
 export const TODOLIST_COLLECTION_NAME = 'todolists';
 export const TODOS_COLLECTION_NAME = 'todos';
 
-function mapToTodoItem(doc: DocumentSnapshot): Todo {
+export function mapToTodoItem(doc: DocumentSnapshot): Todo {
   return {
     scheduledDateTime: doc.get('scheduledDateTime'),
     scheduledDurationMins: doc.get('scheduledDurationMins'),
@@ -47,7 +47,7 @@ function mapToTodoItem(doc: DocumentSnapshot): Todo {
   };
 }
 
-function mapDocToTodoList(doc: DocumentSnapshot): TodoList {
+export function mapDocToTodoList(doc: DocumentSnapshot): TodoList {
   return {
     id: doc.id,
     userId: doc.get('userId'),

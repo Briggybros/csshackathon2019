@@ -6,7 +6,6 @@ import {
   DocumentSnapshot,
 } from '@google-cloud/firestore';
 import { CallableContext } from 'firebase-functions/lib/providers/https';
-import { user } from 'firebase-functions/lib/providers/auth';
 
 export const COLLECTION_NAME = 'schedules';
 
@@ -20,16 +19,16 @@ export enum WeekDay {
   sunday = 'sunday',
 }
 
-interface HoursRange {
+export interface HoursRange {
   start: number;
   end: number;
 }
 
-interface ScheduleId {
+export interface ScheduleId {
   scheduleId: string;
 }
 
-interface Schedule {
+export interface Schedule {
   name: string;
   createdOn: number;
   desiredDurationMins: number;
@@ -73,7 +72,7 @@ export function mapQueryToSchedule(s: DocumentSnapshot): Schedule {
   };
 }
 
-async function getUserSchedulesCollection(
+export async function getUserSchedulesCollection(
   db: Firestore,
   userId: string
 ): Promise<CollectionReference> {
@@ -128,7 +127,7 @@ export class SchedulesApi {
     if (this.userSchedules == null) {
       return Promise.reject();
     }
-    console.log("addSchedules-schedule", schedule)
+    console.log('addSchedules-schedule', schedule);
     if (!validateSchedule(schedule)) {
       return Promise.reject('not a valid schedule object');
     }
@@ -174,13 +173,7 @@ export class ScheduleApiHandlers {
     if (context.auth == null) {
       return { status: 'forbidden', code: 403, message: 'login first' };
     }
-    const {
-      activityName,
-      duration,
-      weeklyFrequency,
-      preferredDays,
-      preferredHours,
-    } = data;
+    const { name, weeklyFrequency, preferredDays, preferredHours } = data;
     try {
       console.log('scheduleHandlers-db', this.db);
       const ref = await getUserSchedulesCollection(this.db, context.auth.uid);
@@ -188,9 +181,9 @@ export class ScheduleApiHandlers {
       console.log('users ref', ref);
       const schedulerApi = new SchedulesApi(this.db, ref);
       const schedule: Schedule = {
-        name: activityName,
+        name: name,
         createdOn: new Date().getTime(),
-        desiredDurationMins: duration,
+        desiredDurationMins: 60,
         weeklyFrequency: weeklyFrequency,
         preferredDays: preferredDays,
         preferredHours: preferredHours,
