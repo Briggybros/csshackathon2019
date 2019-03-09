@@ -33,10 +33,13 @@ function logIn() {
           ...result.credential,
           refreshToken: result.user.refreshToken,
         };
-        firebase
-          .functions()
-          .httpsCallable('storeAuthTokens')(credentials)
-          .catch(console.error);
+
+        setTimeout(() => {
+          firebase
+            .functions()
+            .httpsCallable('storeAuthTokens')(credentials)
+            .catch(console.error);
+        }, 3000);
       }
     })
     .catch(console.error);
