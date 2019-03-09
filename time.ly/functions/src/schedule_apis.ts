@@ -78,36 +78,21 @@ export class SchedulesApi {
   constructor(private db: Firestore, private userId: string) {
     this.db = db;
     this.userId = userId;
-<<<<<<< HEAD
-    const userDoc = db.collection('users').doc(this.userId);
-=======
     const userDoc = db.collection("users").doc(this.userId);
->>>>>>> added some more functionality, Added ability to get all possible schedules for a user
     userDoc
       .get()
       .then(doc => {
         if (!doc.exists) {
-<<<<<<< HEAD
-          throw new Error('User does not exist!');
-        } else {
-          this.userSchedules = db
-            .collection('users')
-=======
           throw new Error("User does not exist!");
         } else {
           this.userSchedules = db
             .collection("users")
->>>>>>> added some more functionality, Added ability to get all possible schedules for a user
             .doc(this.userId)
             .collection(COLLECTION_NAME);
         }
       })
       .catch(err => {
-<<<<<<< HEAD
-        throw err;
-=======
         return { status: "error", code: 404, message: "no user" };
->>>>>>> added some more functionality, Added ability to get all possible schedules for a user
       });
   }
 
