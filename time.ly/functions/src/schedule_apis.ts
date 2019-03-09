@@ -79,19 +79,21 @@ export class SchedulesApi {
     this.db = db;
     this.userId = userId;
     const userDoc = db.collection("users").doc(this.userId);
-    userDoc.get().then(doc => {
-      if (!doc.exists) {
-        throw new Error("User does not exist!");
-      } else {
-        this.userSchedules = db
-          .collection("users")
-          .doc(this.userId)
-          .collection(COLLECTION_NAME);
-      }
-    })
-    .catch(err => {
-      throw err
-    })
+    userDoc
+      .get()
+      .then(doc => {
+        if (!doc.exists) {
+          throw new Error("User does not exist!");
+        } else {
+          this.userSchedules = db
+            .collection("users")
+            .doc(this.userId)
+            .collection(COLLECTION_NAME);
+        }
+      })
+      .catch(err => {
+        return { status: "error", code: 404, message: "no user" };
+      });
   }
 
   async schedules(): Promise<Schedule[]> {
@@ -205,7 +207,7 @@ export class ScheduleApiHandlers {
     }
   }
 
-  async getSchedulesHandler(data: any, context: CallableContext): Promise<any> {
+  async getScheduleHandler(data: any, context: CallableContext): Promise<any> {
     const { scheduleId } = data;
     if (!context.auth) {
       return {
@@ -219,6 +221,26 @@ export class ScheduleApiHandlers {
     try {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.scheduleById(scheduleId);
+    } catch (e) {
+      return { status: "error", code: 404, message: "no user" };
+    }
+  }
+
+  async getAllSchedulesHandler(
+    data: any,
+    context: CallableContext
+  ): Promise<any> {
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
+    }
+    const userId = context.auth.uid;
+    try {
+      const schedulerApi = new SchedulesApi(this.db, userId);
+      return schedulerApi.schedules();
     } catch (e) {
       return { status: "error", code: 404, message: "no user" };
     }
