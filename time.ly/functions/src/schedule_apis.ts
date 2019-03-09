@@ -157,8 +157,13 @@ export class SchedulesApi {
 */
 
 export class ScheduleApiHandlers {
-  constructor(private db: Firestore) {}
+
+  constructor(private db: Firestore) {
+    console.log("scheduleHandlers-db", this.db)
+  }
+
   async addScheduleHandler(data: any, context: CallableContext): Promise<any> {
+    console.log("addScheduleHandler")
     if(context.auth == null) {
       return { status: "forbidden", code: 403, message: "login first" }
     }
@@ -170,7 +175,10 @@ export class ScheduleApiHandlers {
       preferredHours,
     } = data;
     try {
+      console.log("scheduleHandlers-db", this.db)
       const ref = await getUserSchedulesCollection(this.db, context.auth.uid)
+      console.log('userid', context.auth.uid)
+      console.log("users ref", ref)
       const schedulerApi = new SchedulesApi(this.db, ref);
       const schedule: Schedule = {
         name: activityName,
@@ -183,7 +191,9 @@ export class ScheduleApiHandlers {
       };
     
       return schedulerApi.addSchedules(schedule);
-    } catch {
+    } catch(e) {
+      console.log("this.db", this.db)
+      console.error(e)
       return { status: 'error', code: 404, message: 'no user' };
     }
   }
@@ -192,6 +202,7 @@ export class ScheduleApiHandlers {
     data: any,
     context: CallableContext
   ): Promise<any> {
+    console.log("deleteScheduleHandler")
     if (!context.auth) {
       return {
         status: 'forbidden',
@@ -199,6 +210,7 @@ export class ScheduleApiHandlers {
         message: "You're not authorised",
       };
     }
+    console.log("db", this.db)
     const userId = context.auth.uid;
     const { scheduleId } = data;
     try {
@@ -211,6 +223,7 @@ export class ScheduleApiHandlers {
   }
 
   async getScheduleHandler(data: any, context: CallableContext): Promise<any> {
+    console.log("getScheduleHandler")
     const { scheduleId } = data;
     if (!context.auth) {
       return {

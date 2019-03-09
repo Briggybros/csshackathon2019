@@ -36,6 +36,8 @@ db.settings({
   timestampsInSnapshots: true
 });
 
+console.log("db", db)
+
 exports.addMessage = functions.https.onRequest((req, res) => {
   const original = req.query.text;
   res.status(200).send("{'message': 'hello world'}");
@@ -49,6 +51,9 @@ exports.onUserDelete = functions.auth
   .onDelete(userApis.onUserDelete(db));
 
 const todosHandlers = new TodosApiHandler(db);
+const scheduleHandlers = new ScheduleApiHandlers(db);
+
+console.log("scheduleHandlers", scheduleHandlers)
 
 exports.getTodaysTodosForUser = functions.https.onCall(
   todosHandlers.getTodaysTodosHandler
@@ -57,8 +62,6 @@ exports.getThisWeekTodosForUser = functions.https.onCall(
   todosHandlers.getThisWeekTodosHandler
 );
 exports.addTodosForUser = functions.https.onCall(todosHandlers.addTodosHandler);
-
-const scheduleHandlers = new ScheduleApiHandlers(db);
 
 exports.addScheduleForUser = functions.https.onCall(
   scheduleHandlers.addScheduleHandler
