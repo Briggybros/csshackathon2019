@@ -25,6 +25,7 @@ const db = admin.firestore();
 db.settings({
     timestampsInSnapshots: true
 });
+console.log("db", db);
 exports.addMessage = functions.https.onRequest((req, res) => {
     const original = req.query.text;
     res.status(200).send("{'message': 'hello world'}");
@@ -36,10 +37,11 @@ exports.onUserDelete = functions.auth
     .user()
     .onDelete(userApis.onUserDelete(db));
 const todosHandlers = new todo_apis_1.TodosApiHandler(db);
+const scheduleHandlers = new schedule_apis_1.ScheduleApiHandlers(db);
+console.log("scheduleHandlers", scheduleHandlers);
 exports.getTodaysTodosForUser = functions.https.onCall(todosHandlers.getTodaysTodosHandler);
 exports.getThisWeekTodosForUser = functions.https.onCall(todosHandlers.getThisWeekTodosHandler);
 exports.addTodosForUser = functions.https.onCall(todosHandlers.addTodosHandler);
-const scheduleHandlers = new schedule_apis_1.ScheduleApiHandlers(db);
 exports.addScheduleForUser = functions.https.onCall(scheduleHandlers.addScheduleHandler);
 exports.deleteScheduleForUser = functions.https.onCall(scheduleHandlers.deleteScheduleHandler);
 exports.getSchedulesForUser = functions.https.onCall(scheduleHandlers.getScheduleHandler);

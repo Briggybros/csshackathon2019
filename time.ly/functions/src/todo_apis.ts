@@ -36,9 +36,9 @@ function mapToTodoItem(doc: DocumentSnapshot): Todo {
     scheduledDurationMins: doc.get('scheduledDurationMins'),
     done: doc.get('done'),
     todoId: doc.id,
-    name: doc.get("name"),
-    scheduleId: doc.get("scheduleId"),
-    doneAt: doc.get("doneAt")
+    name: doc.get('name'),
+    scheduleId: doc.get('scheduleId'),
+    doneAt: doc.get('doneAt'),
   };
 }
 
@@ -171,10 +171,10 @@ export class TodoListsApi {
 export class TodosApiHandler {
   constructor(private db: Firestore) {}
 
-  async getTodaysTodosHandler(
+  getTodaysTodosHandler = async (
     data: any,
     context: CallableContext
-  ): Promise<any> {
+  ): Promise<any> => {
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
       return {
@@ -185,12 +185,12 @@ export class TodosApiHandler {
     }
     const userId = context.auth.uid;
     return listsApi.getTodayTodos(userId);
-  }
+  };
 
-  async getThisWeekTodosHandler(
+  getThisWeekTodosHandler = async (
     data: any,
     context: CallableContext
-  ): Promise<any> {
+  ): Promise<any> => {
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
       return {
@@ -201,7 +201,7 @@ export class TodosApiHandler {
     }
     const userId = context.auth.uid;
     return listsApi.getWeeklyTodos(userId);
-  }
+  };
 
   addTodosHandler(data: any, context: CallableContext): any {
     const listsApi = new TodoListsApi(this.db);
@@ -229,19 +229,19 @@ export class TodosApiHandler {
     return todoListApiDB;
   }
 
-  tickToDo(data: any, context: CallableContext): any {
+  tickToDo = async (data: any, context: CallableContext): any => {
     const { todoId } = data;
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
     return listsApi.tickTodo(todoId);
-  }
+  };
 }
 
 /** TODO:

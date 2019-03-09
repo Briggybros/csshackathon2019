@@ -73,37 +73,41 @@ export function mapQueryToSchedule(s: DocumentSnapshot): Schedule {
   };
 }
 
-async function getUserSchedulesCollection(db: Firestore, userId: string): Promise<CollectionReference> {
-  const userDoc = db.collection("users").doc(userId);
-  return await userDoc
-    .get()
-    .then(doc => {
-      if (!doc.exists) {
-        throw new Error("User does not exist!");
-      } else {
-        return db
-          .collection("users")
-          .doc(userId)
-          .collection(COLLECTION_NAME);
-      }
-    })
+async function getUserSchedulesCollection(
+  db: Firestore,
+  userId: string
+): Promise<CollectionReference> {
+  const userDoc = db.collection('users').doc(userId);
+  return await userDoc.get().then(doc => {
+    if (!doc.exists) {
+      throw new Error('User does not exist!');
+    } else {
+      return db
+        .collection('users')
+        .doc(userId)
+        .collection(COLLECTION_NAME);
+    }
+  });
 }
 
 export class SchedulesApi {
-  constructor(private db: Firestore, private userSchedules: CollectionReference) {
+  constructor(
+    private db: Firestore,
+    private userSchedules: CollectionReference
+  ) {
     this.db = db;
   }
 
-  async schedules(): Promise<Schedule[]> {
+  schedules = async (): Promise<Schedule[]> => {
     if (this.userSchedules == null) {
       return Promise.reject();
     }
     return await this.userSchedules.get().then(result => {
       return result.docs.map(mapQueryToSchedule).filter(s => !s.deleted);
     });
-  }
+  };
 
-  async scheduleById(id: string): Promise<Schedule> {
+  scheduleById = async (id: string): Promise<Schedule> => {
     if (this.userSchedules == null) {
       return Promise.reject();
     }
@@ -111,16 +115,16 @@ export class SchedulesApi {
       .doc(id)
       .get()
       .then(mapQueryToSchedule);
-  }
+  };
 
-  async deleteSchedule(id: string): Promise<any> {
+  deleteSchedule = async (id: string): Promise<any> => {
     if (this.userSchedules == null) {
       return Promise.reject();
     }
     return await this.userSchedules.doc(id).update({ deleted: true });
-  }
+  };
 
-  async addSchedules(schedule: Schedule): Promise<ScheduleId> {
+  addSchedules = async (schedule: Schedule): Promise<ScheduleId> => {
     if (this.userSchedules == null) {
       return Promise.reject();
     }
@@ -131,7 +135,7 @@ export class SchedulesApi {
     const result = await schedDocRef.set(schedule);
 
     return { scheduleId: schedDocRef.id };
-  }
+  };
 }
 /*
 
@@ -157,15 +161,17 @@ export class SchedulesApi {
 */
 
 export class ScheduleApiHandlers {
-
   constructor(private db: Firestore) {
-    console.log("scheduleHandlers-db", this.db)
+    console.log('scheduleHandlers-db', this.db);
   }
 
-  async addScheduleHandler(data: any, context: CallableContext): Promise<any> {
-    console.log("addScheduleHandler")
-    if(context.auth == null) {
-      return { status: "forbidden", code: 403, message: "login first" }
+  addScheduleHandler = async (
+    data: any,
+    context: CallableContext
+  ): Promise<any> => {
+    console.log('addScheduleHandler');
+    if (context.auth == null) {
+      return { status: 'forbidden', code: 403, message: 'login first' };
     }
     const {
       activityName,
@@ -175,10 +181,10 @@ export class ScheduleApiHandlers {
       preferredHours,
     } = data;
     try {
-      console.log("scheduleHandlers-db", this.db)
-      const ref = await getUserSchedulesCollection(this.db, context.auth.uid)
-      console.log('userid', context.auth.uid)
-      console.log("users ref", ref)
+      console.log('scheduleHandlers-db', this.db);
+      const ref = await getUserSchedulesCollection(this.db, context.auth.uid);
+      console.log('userid', context.auth.uid);
+      console.log('users ref', ref);
       const schedulerApi = new SchedulesApi(this.db, ref);
       const schedule: Schedule = {
         name: activityName,
@@ -189,20 +195,20 @@ export class ScheduleApiHandlers {
         preferredHours: preferredHours,
         deleted: false,
       };
-    
+
       return schedulerApi.addSchedules(schedule);
-    } catch(e) {
-      console.log("this.db", this.db)
-      console.error(e)
+    } catch (e) {
+      console.log('this.db', this.db);
+      console.error(e);
       return { status: 'error', code: 404, message: 'no user' };
     }
-  }
+  };
 
-  async deleteScheduleHandler(
+  deleteScheduleHandler = async (
     data: any,
     context: CallableContext
-  ): Promise<any> {
-    console.log("deleteScheduleHandler")
+  ): Promise<any> => {
+    console.log('deleteScheduleHandler');
     if (!context.auth) {
       return {
         status: 'forbidden',
@@ -210,20 +216,23 @@ export class ScheduleApiHandlers {
         message: "You're not authorised",
       };
     }
-    console.log("db", this.db)
+    console.log('db', this.db);
     const userId = context.auth.uid;
     const { scheduleId } = data;
     try {
-      const ref = await getUserSchedulesCollection(this.db, userId)
+      const ref = await getUserSchedulesCollection(this.db, userId);
       const schedulerApi = new SchedulesApi(this.db, ref);
       return schedulerApi.deleteSchedule(scheduleId);
     } catch {
       return { status: 'error', code: 404, message: 'no user' };
     }
-  }
+  };
 
-  async getScheduleHandler(data: any, context: CallableContext): Promise<any> {
-    console.log("getScheduleHandler")
+  getScheduleHandler = async (
+    data: any,
+    context: CallableContext
+  ): Promise<any> => {
+    console.log(`getScheduleHandler data:${data}`);
     const { scheduleId } = data;
     if (!context.auth) {
       return {
@@ -235,19 +244,19 @@ export class ScheduleApiHandlers {
     const userId = context.auth.uid;
 
     try {
-      const ref = await getUserSchedulesCollection(this.db, userId)
+      const ref = await getUserSchedulesCollection(this.db, userId);
       const schedulerApi = new SchedulesApi(this.db, ref);
       return schedulerApi.scheduleById(scheduleId);
     } catch (e) {
-      console.error(e)
+      console.error(e);
       return { status: 'error', code: 404, message: 'no user' };
     }
-  }
+  };
 
-  async getAllSchedulesHandler(
+  getAllSchedulesHandler = async (
     data: any,
     context: CallableContext
-  ): Promise<any> {
+  ): Promise<any> => {
     if (!context.auth) {
       return {
         status: 'forbidden',
@@ -257,11 +266,11 @@ export class ScheduleApiHandlers {
     }
     const userId = context.auth.uid;
     try {
-      const ref = await getUserSchedulesCollection(this.db, userId)
+      const ref = await getUserSchedulesCollection(this.db, userId);
       const schedulerApi = new SchedulesApi(this.db, ref);
       return schedulerApi.schedules();
     } catch (e) {
       return { status: 'error', code: 404, message: 'no user' };
     }
-  }
+  };
 }
