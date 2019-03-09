@@ -3,21 +3,21 @@ import {
   Firestore,
   CollectionReference,
   QueryDocumentSnapshot,
-  DocumentSnapshot
-} from "@google-cloud/firestore";
-import { CallableContext } from "firebase-functions/lib/providers/https";
-import { user } from "firebase-functions/lib/providers/auth";
+  DocumentSnapshot,
+} from '@google-cloud/firestore';
+import { CallableContext } from 'firebase-functions/lib/providers/https';
+import { user } from 'firebase-functions/lib/providers/auth';
 
-export const COLLECTION_NAME = "schedules";
+export const COLLECTION_NAME = 'schedules';
 
 export enum WeekDay {
-  monday = "monday",
-  tuesday = "tuesday",
-  wednesday = "wednesday",
-  thursday = "thursday",
-  friday = "friday",
-  saturday = "saturday",
-  sunday = "sunday"
+  monday = 'monday',
+  tuesday = 'tuesday',
+  wednesday = 'wednesday',
+  thursday = 'thursday',
+  friday = 'friday',
+  saturday = 'saturday',
+  sunday = 'sunday',
 }
 
 interface HoursRange {
@@ -50,26 +50,26 @@ interface Schedule {
  */
 export function validateSchedule(schedule: Schedule) {
   return (
-    typeof schedule === "object" &&
+    typeof schedule === 'object' &&
     schedule.desiredDurationMins &&
     schedule.name &&
     schedule.createdOn &&
     schedule.weeklyFrequency &&
     schedule.preferredDays &&
     Array.isArray(schedule.preferredDays) &&
-    typeof schedule.preferredHours === "object"
+    typeof schedule.preferredHours === 'object'
   );
 }
 
 export function mapQueryToSchedule(s: DocumentSnapshot): Schedule {
   return {
-    name: <string>s.get("name"),
-    createdOn: <number>s.get("number"),
-    desiredDurationMins: <number>s.get("desiredDurationMins"),
-    weeklyFrequency: <number>s.get("weeklyFrequency"),
-    preferredDays: <WeekDay[]>s.get("preferredDays"),
-    preferredHours: <HoursRange>s.get("preferredHours"),
-    deleted: <boolean>s.get("deleted")
+    name: <string>s.get('name'),
+    createdOn: <number>s.get('number'),
+    desiredDurationMins: <number>s.get('desiredDurationMins'),
+    weeklyFrequency: <number>s.get('weeklyFrequency'),
+    preferredDays: <WeekDay[]>s.get('preferredDays'),
+    preferredHours: <HoursRange>s.get('preferredHours'),
+    deleted: <boolean>s.get('deleted'),
   };
 }
 export class SchedulesApi {
@@ -127,7 +127,7 @@ export class SchedulesApi {
       return Promise.reject();
     }
     if (!validateSchedule(schedule)) {
-      return Promise.reject("not a valid schedule object");
+      return Promise.reject('not a valid schedule object');
     }
     const schedDocRef = this.userSchedules.doc();
     const result = await schedDocRef.set(schedule);
@@ -167,7 +167,7 @@ export class ScheduleApiHandlers {
       duration,
       weeklyFrequency,
       preferredDays,
-      preferredHours
+      preferredHours,
     } = data;
     const schedulerApi = new SchedulesApi(this.db, userId);
     const schedule: Schedule = {
@@ -177,16 +177,56 @@ export class ScheduleApiHandlers {
       weeklyFrequency: weeklyFrequency,
       preferredDays: preferredDays,
       preferredHours: preferredHours,
-      deleted: false
+      deleted: false,
     };
     try {
       return schedulerApi.addSchedules(schedule);
     } catch {
-      return { status: "error", code: 404, message: "no user" };
+      return { status: 'error', code: 404, message: 'no user' };
     }
   }
 
   async deleteScheduleHandler(
+    data: any,
+    context: CallableContext
+  ): Promise<any> {
+    if (!context.auth) {
+      return {
+        status: 'forbidden',
+        code: 403,
+        message: "You're not authorised",
+      };
+    }
+    const userId = context.auth.uid;
+    const { scheduleId } = data;
+    try {
+      const schedulerApi = new SchedulesApi(this.db, userId);
+      return schedulerApi.deleteSchedule(scheduleId);
+    } catch {
+      return { status: 'error', code: 404, message: 'no user' };
+    }
+  }
+
+  async getScheduleHandler(data: any, context: CallableContext): Promise<any> {
+    const { scheduleId } = data;
+    if (!context.auth) {
+      return {
+        status: 'forbidden',
+        code: 403,
+        message: "You're not authorised",
+      };
+    }
+    const userId = context.auth.uid;
+
+    try {
+      const schedulerApi = new SchedulesApi(this.db, userId);
+      return schedulerApi.scheduleById(scheduleId);
+    } catch (e) {
+      return { status: 'error', code: 404, message: 'no user' };
+    }
+  }
+
+  async getAllSchedulesHandler(
     data: any,
     context: CallableContext
   ): Promise<any> {
@@ -198,29 +238,9 @@ export class ScheduleApiHandlers {
       };
     }
     const userId = context.auth.uid;
-    const { scheduleId } = data;
     try {
       const schedulerApi = new SchedulesApi(this.db, userId);
-      return schedulerApi.deleteSchedule(scheduleId);
-    } catch {
-      return { status: "error", code: 404, message: "no user" };
-    }
-  }
-
-  async getScheduleHandler(data: any, context: CallableContext): Promise<any> {
-    const { scheduleId } = data;
-    if (!context.auth) {
-      return {
-        status: "forbidden",
-        code: 403,
-        message: "You're not authorised"
-      };
-    }
-    const userId = context.auth.uid;
-
-    try {
-      const schedulerApi = new SchedulesApi(this.db, userId);
-      return schedulerApi.scheduleById(scheduleId);
+      return schedulerApi.schedules();
     } catch (e) {
       return { status: "error", code: 404, message: "no user" };
     }

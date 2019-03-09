@@ -1,14 +1,14 @@
 import {
   Firestore,
   QueryDocumentSnapshot,
-  DocumentReference
-} from "@google-cloud/firestore";
-import { CallableContext } from "firebase-functions/lib/providers/https";
+  DocumentReference,
+} from '@google-cloud/firestore';
+import { CallableContext } from 'firebase-functions/lib/providers/https';
 
-import * as dateutils from "./dateutils.js";
-import { DocumentSnapshot } from "firebase-functions/lib/providers/firestore";
-import { UserDimensions } from "firebase-functions/lib/providers/analytics";
-import { user } from "firebase-functions/lib/providers/auth";
+import * as dateutils from './dateutils.js';
+import { DocumentSnapshot } from 'firebase-functions/lib/providers/firestore';
+import { UserDimensions } from 'firebase-functions/lib/providers/analytics';
+import { user } from 'firebase-functions/lib/providers/auth';
 
 export interface Todo {
   scheduledDateTime: number;
@@ -27,14 +27,14 @@ export interface TodoList {
   todos: Todo[];
 }
 
-export const TODOLIST_COLLECTION_NAME = "todolists";
-export const TODOS_COLLECTION_NAME = "todos";
+export const TODOLIST_COLLECTION_NAME = 'todolists';
+export const TODOS_COLLECTION_NAME = 'todos';
 
 function mapToTodoItem(doc: DocumentSnapshot): Todo {
   return {
-    scheduledDateTime: doc.get("scheduledDateTime"),
-    scheduledDurationMins: doc.get("scheduledDurationMins"),
-    done: doc.get("done"),
+    scheduledDateTime: doc.get('scheduledDateTime'),
+    scheduledDurationMins: doc.get('scheduledDurationMins'),
+    done: doc.get('done'),
     todoId: doc.id,
     name: doc.get("name"),
     scheduleId: doc.get("scheduleId"),
@@ -45,9 +45,9 @@ function mapToTodoItem(doc: DocumentSnapshot): Todo {
 function mapDocToTodoList(doc: DocumentSnapshot): TodoList {
   return {
     id: doc.id,
-    userId: doc.get("userId"),
-    date: doc.get("date"),
-    todos: doc.get("todos").map(mapToTodoItem)
+    userId: doc.get('userId'),
+    date: doc.get('date'),
+    todos: doc.get('todos').map(mapToTodoItem),
   };
 }
 
@@ -69,7 +69,7 @@ export class DailyTodoListApi {
   async getTodos(): Promise<any[]> {
     return await this.db
       .collection(TODOLIST_COLLECTION_NAME)
-      .where("userId", "==", this.userId)
+      .where('userId', '==', this.userId)
       .get()
       .then(data => {
         return data.docs.map(s => s.data);
@@ -92,10 +92,10 @@ export class TodoListsApi {
 
   async createTodoListWithTodos(userId: string, date: Date, todos: Todo[]) {
     const newTodoList: TodoList = {
-      id: "",
+      id: '',
       userId: userId,
       date: dateutils.yyyy_mm_dd(date),
-      todos: todos
+      todos: todos,
     };
 
     var dateRange = dateutils.todaysDateRange();
@@ -103,7 +103,7 @@ export class TodoListsApi {
       .collection(TODOLIST_COLLECTION_NAME)
       .add(newTodoList)
       .then(docRef => {
-        console.log("created new empty todolist for today for user", userId);
+        console.log('created new empty todolist for today for user', userId);
         const todoListApi = new DailyTodoListApi(
           this.db,
           userId,
@@ -114,7 +114,7 @@ export class TodoListsApi {
         return todoListApi.addTodos(todos);
       })
       .catch(err => {
-        console.log("error creating new todolist", err);
+        console.log('error creating new todolist', err);
       });
   }
 
@@ -132,12 +132,12 @@ export class TodoListsApi {
   async getTodayTodos(userId: string): Promise<TodoList> {
     const query = this.db
       .collection(TODOLIST_COLLECTION_NAME)
-      .where("userId", "==", userId)
-      .where("date", "==", dateutils.yyyy_mm_dd(new Date()))
-      .orderBy("datetime")
+      .where('userId', '==', userId)
+      .where('date', '==', dateutils.yyyy_mm_dd(new Date()))
+      .orderBy('datetime')
       .limit(1);
     return query.get().then(result => {
-      console.log("finished querying data", result.docs[0]);
+      console.log('finished querying data', result.docs[0]);
       return mapDocToTodoList(result.docs[0]);
     });
   }
@@ -146,12 +146,12 @@ export class TodoListsApi {
     const dateRange = dateutils.thisWeeksDateRange();
     const query = this.db
       .collection(TODOLIST_COLLECTION_NAME)
-      .where("userId", "==", userId)
-      .where("date", ">=", dateutils.yyyy_mm_dd(dateRange.startDate))
-      .where("date", "<=", dateutils.yyyy_mm_dd(dateRange.endDate))
+      .where('userId', '==', userId)
+      .where('date', '>=', dateutils.yyyy_mm_dd(dateRange.startDate))
+      .where('date', '<=', dateutils.yyyy_mm_dd(dateRange.endDate))
       .limit(7);
     return await query.get().then(result => {
-      console.log("get weekly todos data", result.docs);
+      console.log('get weekly todos data', result.docs);
       return result.docs.map(mapDocToTodoList);
     });
   }
@@ -178,9 +178,9 @@ export class TodosApiHandler {
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
@@ -194,9 +194,9 @@ export class TodosApiHandler {
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
@@ -207,9 +207,9 @@ export class TodosApiHandler {
     const listsApi = new TodoListsApi(this.db);
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
@@ -219,11 +219,11 @@ export class TodosApiHandler {
       scheduledDurationMins: duration,
       done: false,
       name: name,
-      scheduleId: scheduleId
+      scheduleId: scheduleId,
     };
 
     const todoListApiDB = listsApi.createTodoListWithTodos(userId, datetime, [
-      thisToDo
+      thisToDo,
     ]);
 
     return todoListApiDB;

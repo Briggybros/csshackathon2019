@@ -1,19 +1,9 @@
 import * as React from 'react';
 
-interface Schedule {
-  name: string;
-  createdOn: number;
-  weeklyFrequency: number;
-  preferredDay: number;
-  preferredHour: number;
-}
-
-interface ScheduleMap {
-  [id: string]: Schedule;
-}
+import { Map, Schedule } from '../types';
 
 export const ScheduleList = () => {
-  const [scheduleMap, setScheduleMap] = React.useState<ScheduleMap>({});
+  const [scheduleMap, setScheduleMap] = React.useState<Map<Schedule>>({});
 
   return (
     <div>
