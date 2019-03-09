@@ -237,9 +237,9 @@ export class ScheduleApiHandlers {
   ): Promise<any> {
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
@@ -248,7 +248,7 @@ export class ScheduleApiHandlers {
       const schedulerApi = new SchedulesApi(this.db, ref);
       return schedulerApi.schedules();
     } catch (e) {
-      return { status: "error", code: 404, message: "no user" };
+      return { status: 'error', code: 404, message: 'no user' };
     }
   }
 }
