@@ -48,8 +48,12 @@ const Renderer = ({ user }: Props) => (
       <Login />
     ) : (
       <Switch>
-        <Route exact path="/" component={TodoList} />
-        <Route path="/schedule" component={ScheduleList} />
+        <Route exact path="/">
+          <TodoList user={user} />
+        </Route>
+        <Route path="/schedule">
+          <ScheduleList user={user} />
+        </Route>
         <Route path="/add" component={AddSchedule} />
       </Switch>
     )}

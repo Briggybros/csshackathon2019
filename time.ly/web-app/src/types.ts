@@ -11,11 +11,10 @@ export interface Todo {
 
 export interface Schedule {
   name: string;
-  createdOn: number;
   weeklyFrequency: number;
-  preferredDays: number[];
+  preferredDays: string[];
   preferredHours: {
-    from: number;
-    to: number;
+    start: number;
+    end: number;
   };
 }

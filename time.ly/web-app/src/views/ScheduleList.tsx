@@ -1,24 +1,28 @@
 import * as React from 'react';
-
+import { functions } from 'firebase';
 import { Entry, Info, Name, Description } from '../components/List';
 import { Footer } from '../components/Footer';
 
 import { days } from '../util';
 import { Map, Schedule } from '../types';
 
-export const ScheduleList = () => {
-  const [scheduleMap, setScheduleMap] = React.useState<Map<Schedule>>({
-    ididd: {
-      name: 'Go to the gym',
-      createdOn: Date.now(),
-      weeklyFrequency: 3,
-      preferredDays: [0, 1, 2, 3, 4],
-      preferredHours: {
-        from: 7,
-        to: 21,
-      },
-    },
-  });
+interface Props {
+  user: firebase.User;
+}
+
+export const ScheduleList = ({ user }: Props) => {
+  const [scheduleMap, setScheduleMap] = React.useState<Map<Schedule>>({});
+
+  React.useEffect(() => {
+    if (user) {
+      functions()
+        .httpsCallable('getSchedulesForUser')()
+        .then(response => {
+          return setScheduleMap(response.data.scheduleMap);
+        })
+        .catch(console.error);
+    }
+  }, [user]);
 
   return (
     <>
