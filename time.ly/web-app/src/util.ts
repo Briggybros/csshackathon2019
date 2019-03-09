@@ -25,11 +25,15 @@ export const hours = [
   23,
 ];
 export const days = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
 ];
+
+export function capitalise(str: string) {
+  return `${str.substring(0, 1).toUpperCase()}${str.substring(1, str.length)}`;
+}

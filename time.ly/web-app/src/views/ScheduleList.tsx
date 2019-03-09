@@ -3,7 +3,7 @@ import { functions } from 'firebase';
 import { Entry, Info, Name, Description } from '../components/List';
 import { Footer } from '../components/Footer';
 
-import { days } from '../util';
+import { days, capitalise } from '../util';
 import { Map, Schedule } from '../types';
 
 interface Props {
@@ -36,13 +36,7 @@ export const ScheduleList = ({ user }: Props) => {
                 : `${schedule.weeklyFrequency} times`}{' '}
               a week between {schedule.preferredHours.start}:00 and{' '}
               {schedule.preferredHours.end}:00 on{' '}
-              {schedule.preferredDays.map(
-                day =>
-                  `${day.substring(0, 1).toUpperCase()}${day.substring(
-                    1,
-                    day.length
-                  )} `
-              )}
+              {schedule.preferredDays.map(day => `${capitalise(day)} `)}
             </Description>
           </Info>
         </Entry>

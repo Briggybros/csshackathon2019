@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { Button } from '../components/Buttons';
 
-import { days, hours } from '../util';
+import { days, hours, capitalise } from '../util';
 import { Schedule } from '../types';
 
 const Row = styled.span`
@@ -99,7 +99,7 @@ export const AddSchedule = ({ history }: Props) => {
                   }
                 }}
               />
-              {day}
+              {capitalise(day)}
             </span>
           ))}
         </DayList>
