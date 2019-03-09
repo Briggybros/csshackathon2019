@@ -1,10 +1,17 @@
 import * as React from 'react';
 import { functions } from 'firebase';
+import styled from 'styled-components';
+
 import { Entry, Info, Name, Description } from '../components/List';
 import { Footer } from '../components/Footer';
 
-import { days, capitalise } from '../util';
-import { Map, Schedule } from '../types';
+import { capitalise } from '../util';
+import { Schedule } from '../types';
+import { Button } from '../components/Buttons';
+
+const ScheduleButton = styled(Button)`
+  width: 100%;
+`;
 
 interface Props {
   user: firebase.User;
@@ -26,6 +33,9 @@ export const ScheduleList = ({ user }: Props) => {
 
   return (
     <>
+      <ScheduleButton onClick={() => {
+        functions().httpsCallable('makeWeeklyTodoLists')();
+      }}>Schedule Now!</ScheduleButton>
       {schedules.map(schedule => (
         <Entry key={schedule.name}>
           <Info>
