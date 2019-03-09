@@ -27,6 +27,11 @@ export interface TodoList {
   todos: Todo[];
 }
 
+export interface GetTodoListsResult {
+  todoLists?: TodoList[],
+  size: number,
+}
+
 export const TODOLIST_COLLECTION_NAME = 'todolists';
 export const TODOS_COLLECTION_NAME = 'todos';
 
@@ -72,7 +77,7 @@ export class DailyTodoListApi {
       .where('userId', '==', this.userId)
       .get()
       .then(data => {
-        return data.docs.map(s => s.data);
+        return data.docs.map(mapToTodoItem);
       });
   };
 
@@ -133,7 +138,7 @@ export class TodoListsApi {
     return this.createTodoListWithTodos(userId, date, []);
   };
 
-  getTodayTodos = async (userId: string): Promise<TodoList> => {
+  getTodayTodos = async (userId: string): Promise<TodoList[]> => {
     const query = this.db
       .collection(TODOLIST_COLLECTION_NAME)
       .where('userId', '==', userId)
@@ -141,12 +146,14 @@ export class TodoListsApi {
       .orderBy('datetime')
       .limit(1);
     return query.get().then(result => {
-      console.log('finished querying data', result.docs[0]);
-      return mapDocToTodoList(result.docs[0]);
+      if (result.size < 0) {
+        return <TodoList[]>[]
+      }
+      return result.docs.map(mapDocToTodoList)
     });
   };
 
-  getWeeklyTodos = async (userId: string): Promise<any[]> => {
+  getWeeklyTodos = async (userId: string): Promise<TodoList[]> => {
     const dateRange = dateutils.thisWeeksDateRange();
     const query = this.db
       .collection(TODOLIST_COLLECTION_NAME)
