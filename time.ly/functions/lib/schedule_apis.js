@@ -72,10 +72,7 @@ class SchedulesApi {
     constructor(db, userSchedules) {
         this.db = db;
         this.userSchedules = userSchedules;
-        this.db = db;
-    }
-    schedules() {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.schedules = () => __awaiter(this, void 0, void 0, function* () {
             if (this.userSchedules == null) {
                 return Promise.reject();
             }
@@ -83,9 +80,7 @@ class SchedulesApi {
                 return result.docs.map(mapQueryToSchedule).filter(s => !s.deleted);
             });
         });
-    }
-    scheduleById(id) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.scheduleById = (id) => __awaiter(this, void 0, void 0, function* () {
             if (this.userSchedules == null) {
                 return Promise.reject();
             }
@@ -94,17 +89,13 @@ class SchedulesApi {
                 .get()
                 .then(mapQueryToSchedule);
         });
-    }
-    deleteSchedule(id) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.deleteSchedule = (id) => __awaiter(this, void 0, void 0, function* () {
             if (this.userSchedules == null) {
                 return Promise.reject();
             }
             return yield this.userSchedules.doc(id).update({ deleted: true });
         });
-    }
-    addSchedules(schedule) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.addSchedules = (schedule) => __awaiter(this, void 0, void 0, function* () {
             if (this.userSchedules == null) {
                 return Promise.reject();
             }
@@ -115,6 +106,7 @@ class SchedulesApi {
             const result = yield schedDocRef.set(schedule);
             return { scheduleId: schedDocRef.id };
         });
+        this.db = db;
     }
 }
 exports.SchedulesApi = SchedulesApi;
@@ -143,10 +135,7 @@ exports.SchedulesApi = SchedulesApi;
 class ScheduleApiHandlers {
     constructor(db) {
         this.db = db;
-        console.log('scheduleHandlers-db', this.db);
-    }
-    addScheduleHandler(data, context) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.addScheduleHandler = (data, context) => __awaiter(this, void 0, void 0, function* () {
             console.log('addScheduleHandler');
             if (context.auth == null) {
                 return { status: 'forbidden', code: 403, message: 'login first' };
@@ -175,9 +164,7 @@ class ScheduleApiHandlers {
                 return { status: 'error', code: 404, message: 'no user' };
             }
         });
-    }
-    deleteScheduleHandler(data, context) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.deleteScheduleHandler = (data, context) => __awaiter(this, void 0, void 0, function* () {
             console.log('deleteScheduleHandler');
             if (!context.auth) {
                 return {
@@ -198,9 +185,7 @@ class ScheduleApiHandlers {
                 return { status: 'error', code: 404, message: 'no user' };
             }
         });
-    }
-    getScheduleHandler(data, context) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.getScheduleHandler = (data, context) => __awaiter(this, void 0, void 0, function* () {
             console.log(`getScheduleHandler data:${data}`);
             const { scheduleId } = data;
             if (!context.auth) {
@@ -221,9 +206,7 @@ class ScheduleApiHandlers {
                 return { status: 'error', code: 404, message: 'no user' };
             }
         });
-    }
-    getAllSchedulesHandler(data, context) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.getAllSchedulesHandler = (data, context) => __awaiter(this, void 0, void 0, function* () {
             if (!context.auth) {
                 return {
                     status: 'forbidden',
@@ -241,6 +224,7 @@ class ScheduleApiHandlers {
                 return { status: 'error', code: 404, message: 'no user' };
             }
         });
+        console.log('scheduleHandlers-db', this.db);
     }
 }
 exports.ScheduleApiHandlers = ScheduleApiHandlers;
