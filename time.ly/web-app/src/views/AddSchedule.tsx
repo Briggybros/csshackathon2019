@@ -108,7 +108,7 @@ export const AddSchedule = ({ history }: Props) => {
         <label>Preferred Hours:</label>
       </Row>
       <Row>
-        <label>From:</label>
+        <label>Start:</label>
         <select
           value={schedule.preferredHours.start}
           onChange={e =>
@@ -129,7 +129,7 @@ export const AddSchedule = ({ history }: Props) => {
         </select>
       </Row>
       <Row>
-        <label>To:</label>
+        <label>End:</label>
         <select
           value={schedule.preferredHours.end}
           onChange={e =>
@@ -155,7 +155,6 @@ export const AddSchedule = ({ history }: Props) => {
             functions()
               .httpsCallable('addScheduleForUser')(schedule)
               .then(response => {
-                console.log(response);
                 if (response.data.status === 'error') {
                   console.error(response.data.message);
                 } else {

@@ -11,14 +11,14 @@ interface Props {
 }
 
 export const ScheduleList = ({ user }: Props) => {
-  const [scheduleMap, setScheduleMap] = React.useState<Map<Schedule>>({});
+  const [schedules, setSchedules] = React.useState<Schedule[]>([]);
 
   React.useEffect(() => {
     if (user) {
       functions()
-        .httpsCallable('getSchedulesForUser')()
+        .httpsCallable('getAllSchedulesForUser')()
         .then(response => {
-          return setScheduleMap(response.data.scheduleMap);
+          return setSchedules(response.data);
         })
         .catch(console.error);
     }
@@ -26,8 +26,8 @@ export const ScheduleList = ({ user }: Props) => {
 
   return (
     <>
-      {Object.entries(scheduleMap).map(([id, schedule]) => (
-        <Entry key={id}>
+      {schedules.map(schedule => (
+        <Entry key={schedule.name}>
           <Info>
             <Name>{schedule.name}</Name>
             <Description>

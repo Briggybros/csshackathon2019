@@ -32,7 +32,11 @@ export const TodoList = ({ user }: Props) => {
       functions()
         .httpsCallable('getTodaysTodosForUser')()
         .then(response => {
-          return setTodoList(response.data.todolist);
+          if (!response.data) {
+            console.error('No data');
+            return;
+          }
+          return setTodoList(response.data);
         })
         .catch(console.error);
     }
