@@ -78,21 +78,36 @@ export class SchedulesApi {
   constructor(private db: Firestore, private userId: string) {
     this.db = db;
     this.userId = userId;
+<<<<<<< HEAD
     const userDoc = db.collection('users').doc(this.userId);
+=======
+    const userDoc = db.collection("users").doc(this.userId);
+>>>>>>> added some more functionality, Added ability to get all possible schedules for a user
     userDoc
       .get()
       .then(doc => {
         if (!doc.exists) {
+<<<<<<< HEAD
           throw new Error('User does not exist!');
         } else {
           this.userSchedules = db
             .collection('users')
+=======
+          throw new Error("User does not exist!");
+        } else {
+          this.userSchedules = db
+            .collection("users")
+>>>>>>> added some more functionality, Added ability to get all possible schedules for a user
             .doc(this.userId)
             .collection(COLLECTION_NAME);
         }
       })
       .catch(err => {
+<<<<<<< HEAD
         throw err;
+=======
+        return { status: "error", code: 404, message: "no user" };
+>>>>>>> added some more functionality, Added ability to get all possible schedules for a user
       });
   }
 
@@ -207,7 +222,7 @@ export class ScheduleApiHandlers {
     }
   }
 
-  async getSchedulesHandler(data: any, context: CallableContext): Promise<any> {
+  async getScheduleHandler(data: any, context: CallableContext): Promise<any> {
     const { scheduleId } = data;
     if (!context.auth) {
       return {
@@ -223,6 +238,26 @@ export class ScheduleApiHandlers {
       return schedulerApi.scheduleById(scheduleId);
     } catch (e) {
       return { status: 'error', code: 404, message: 'no user' };
+    }
+  }
+
+  async getAllSchedulesHandler(
+    data: any,
+    context: CallableContext
+  ): Promise<any> {
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
+    }
+    const userId = context.auth.uid;
+    try {
+      const schedulerApi = new SchedulesApi(this.db, userId);
+      return schedulerApi.schedules();
+    } catch (e) {
+      return { status: "error", code: 404, message: "no user" };
     }
   }
 }

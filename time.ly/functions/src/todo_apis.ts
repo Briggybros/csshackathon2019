@@ -85,13 +85,6 @@ export class DailyTodoListApi {
     }
     return batch.commit();
   }
-
-  async tickTodo(todoId: string): Promise<any> {
-    return await this.todoListRef
-      .collection(TODOS_COLLECTION_NAME)
-      .doc(todoId)
-      .update({ done: true, doneAt: new Date() });
-  }
 }
 
 export class TodoListsApi {
@@ -123,6 +116,13 @@ export class TodoListsApi {
       .catch(err => {
         console.log('error creating new todolist', err);
       });
+  }
+
+  async tickTodo(todoId: string): Promise<any> {
+    return await this.db
+      .collection(TODOS_COLLECTION_NAME)
+      .doc(todoId)
+      .update({ done: true, doneAt: new Date() });
   }
 
   async createTodoList(userId: string, date: Date) {
@@ -167,6 +167,7 @@ export class TodoListsApi {
  *        }
  *
  */
+
 export class TodosApiHandler {
   constructor(private db: Firestore) {}
 
@@ -226,6 +227,20 @@ export class TodosApiHandler {
     ]);
 
     return todoListApiDB;
+  }
+
+  tickToDo(data: any, context: CallableContext): any {
+    const { todoId } = data;
+    const listsApi = new TodoListsApi(this.db);
+    if (!context.auth) {
+      return {
+        status: "forbidden",
+        code: 403,
+        message: "You're not authorised"
+      };
+    }
+    const userId = context.auth.uid;
+    return listsApi.tickTodo(todoId);
   }
 }
 
