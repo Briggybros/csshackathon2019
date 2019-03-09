@@ -128,6 +128,7 @@ export class SchedulesApi {
     if (this.userSchedules == null) {
       return Promise.reject();
     }
+    console.log("addSchedules-schedule", schedule)
     if (!validateSchedule(schedule)) {
       return Promise.reject('not a valid schedule object');
     }
