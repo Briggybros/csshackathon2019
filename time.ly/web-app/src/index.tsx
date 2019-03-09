@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { render } from 'react-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import { Provider as FirebaseProvider } from './providers/Firebase';
 import { Provider as ThemeProvider } from './providers/Theme';
@@ -13,7 +14,9 @@ const mount = document.getElementById('app');
 render(
   <ThemeProvider theme={style}>
     <FirebaseProvider config={firebaseConfig}>
-      <App />
+      <Router>
+        <App />
+      </Router>
     </FirebaseProvider>
   </ThemeProvider>,
   mount

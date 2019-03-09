@@ -18,7 +18,15 @@ export default () => (
       uiConfig={{
         signInFlow: 'popup',
         signInSuccessUrl: '/',
-        signInOptions: [auth.GoogleAuthProvider.PROVIDER_ID],
+        signInOptions: [
+          {
+            provider: auth.GoogleAuthProvider.PROVIDER_ID,
+            scopes: [
+              'https://www.googleapis.com/auth/calendar',
+              'https://www.googleapis.com/auth/calendar.events',
+            ],
+          },
+        ],
       }}
       firebaseAuth={auth()}
     />

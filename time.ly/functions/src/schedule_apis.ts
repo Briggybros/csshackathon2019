@@ -3,21 +3,21 @@ import {
   Firestore,
   CollectionReference,
   QueryDocumentSnapshot,
-  DocumentSnapshot
-} from "@google-cloud/firestore";
-import { CallableContext } from "firebase-functions/lib/providers/https";
-import { user } from "firebase-functions/lib/providers/auth";
+  DocumentSnapshot,
+} from '@google-cloud/firestore';
+import { CallableContext } from 'firebase-functions/lib/providers/https';
+import { user } from 'firebase-functions/lib/providers/auth';
 
-export const COLLECTION_NAME = "schedules";
+export const COLLECTION_NAME = 'schedules';
 
 export enum WeekDay {
-  monday = "monday",
-  tuesday = "tuesday",
-  wednesday = "wednesday",
-  thursday = "thursday",
-  friday = "friday",
-  saturday = "saturday",
-  sunday = "sunday"
+  monday = 'monday',
+  tuesday = 'tuesday',
+  wednesday = 'wednesday',
+  thursday = 'thursday',
+  friday = 'friday',
+  saturday = 'saturday',
+  sunday = 'sunday',
 }
 
 interface HoursRange {
@@ -50,26 +50,26 @@ interface Schedule {
  */
 export function validateSchedule(schedule: Schedule) {
   return (
-    typeof schedule === "object" &&
+    typeof schedule === 'object' &&
     schedule.desiredDurationMins &&
     schedule.name &&
     schedule.createdOn &&
     schedule.weeklyFrequency &&
     schedule.preferredDays &&
     Array.isArray(schedule.preferredDays) &&
-    typeof schedule.preferredHours === "object"
+    typeof schedule.preferredHours === 'object'
   );
 }
 
 export function mapQueryToSchedule(s: DocumentSnapshot): Schedule {
   return {
-    name: <string>s.get("name"),
-    createdOn: <number>s.get("number"),
-    desiredDurationMins: <number>s.get("desiredDurationMins"),
-    weeklyFrequency: <number>s.get("weeklyFrequency"),
-    preferredDays: <WeekDay[]>s.get("preferredDays"),
-    preferredHours: <HoursRange>s.get("preferredHours"),
-    deleted: <boolean>s.get("deleted")
+    name: <string>s.get('name'),
+    createdOn: <number>s.get('number'),
+    desiredDurationMins: <number>s.get('desiredDurationMins'),
+    weeklyFrequency: <number>s.get('weeklyFrequency'),
+    preferredDays: <WeekDay[]>s.get('preferredDays'),
+    preferredHours: <HoursRange>s.get('preferredHours'),
+    deleted: <boolean>s.get('deleted'),
   };
 }
 export class SchedulesApi {
@@ -78,20 +78,22 @@ export class SchedulesApi {
   constructor(private db: Firestore, private userId: string) {
     this.db = db;
     this.userId = userId;
-    const userDoc = db.collection("users").doc(this.userId);
-    userDoc.get().then(doc => {
-      if (!doc.exists) {
-        throw new Error("User does not exist!");
-      } else {
-        this.userSchedules = db
-          .collection("users")
-          .doc(this.userId)
-          .collection(COLLECTION_NAME);
-      }
-    })
-    .catch(err => {
-      throw err
-    })
+    const userDoc = db.collection('users').doc(this.userId);
+    userDoc
+      .get()
+      .then(doc => {
+        if (!doc.exists) {
+          throw new Error('User does not exist!');
+        } else {
+          this.userSchedules = db
+            .collection('users')
+            .doc(this.userId)
+            .collection(COLLECTION_NAME);
+        }
+      })
+      .catch(err => {
+        throw err;
+      });
   }
 
   async schedules(): Promise<Schedule[]> {
@@ -125,7 +127,7 @@ export class SchedulesApi {
       return Promise.reject();
     }
     if (!validateSchedule(schedule)) {
-      return Promise.reject("not a valid schedule object");
+      return Promise.reject('not a valid schedule object');
     }
     const schedDocRef = this.userSchedules.doc();
     const result = await schedDocRef.set(schedule);
@@ -165,7 +167,7 @@ export class ScheduleApiHandlers {
       duration,
       weeklyFrequency,
       preferredDays,
-      preferredHours
+      preferredHours,
     } = data;
     const schedulerApi = new SchedulesApi(this.db, userId);
     const schedule: Schedule = {
@@ -175,12 +177,12 @@ export class ScheduleApiHandlers {
       weeklyFrequency: weeklyFrequency,
       preferredDays: preferredDays,
       preferredHours: preferredHours,
-      deleted: false
+      deleted: false,
     };
     try {
       return schedulerApi.addSchedules(schedule);
     } catch {
-      return { status: "error", code: 404, message: "no user" };
+      return { status: 'error', code: 404, message: 'no user' };
     }
   }
 
@@ -190,9 +192,9 @@ export class ScheduleApiHandlers {
   ): Promise<any> {
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
@@ -201,7 +203,7 @@ export class ScheduleApiHandlers {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.deleteSchedule(scheduleId);
     } catch {
-      return { status: "error", code: 404, message: "no user" };
+      return { status: 'error', code: 404, message: 'no user' };
     }
   }
 
@@ -209,9 +211,9 @@ export class ScheduleApiHandlers {
     const { scheduleId } = data;
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
@@ -220,7 +222,7 @@ export class ScheduleApiHandlers {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.scheduleById(scheduleId);
     } catch (e) {
-      return { status: "error", code: 404, message: "no user" };
+      return { status: 'error', code: 404, message: 'no user' };
     }
   }
 }
