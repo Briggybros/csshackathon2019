@@ -59,7 +59,7 @@ const todosHandlers = new TodosApiHandler(db);
 const scheduleHandlers = new ScheduleApiHandlers(db);
 const authApis = new AuthApis(db, CLIENT_ID, CLIENT_SECRET)
 const schedulersApis = new SchedularApis(db)
-
+const calenderApis = new CalendarApis(db)
 console.log("scheduleHandlers", scheduleHandlers)
 
 exports.getTodaysTodosForUser = functions.https.onCall(
@@ -90,3 +90,7 @@ exports.storeAuthTokens = functions.https.onCall(
 exports.makeWeeklyTodoLists = functions.https.onCall(
   schedulersApis.weeklyTodoListsHandler
 )
+
+exports.onCreateTodoList = functions.firestore
+  .document("todolists")
+  .onCreate(calenderApis.syncCalendarHandler)

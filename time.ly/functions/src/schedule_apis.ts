@@ -19,16 +19,16 @@ export enum WeekDay {
   sunday = 'sunday',
 }
 
-interface HoursRange {
+export interface HoursRange {
   start: number;
   end: number;
 }
 
-interface ScheduleId {
+export interface ScheduleId {
   scheduleId: string;
 }
 
-interface Schedule {
+export interface Schedule {
   name: string;
   createdOn: number;
   desiredDurationMins: number;
