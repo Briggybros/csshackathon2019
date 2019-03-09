@@ -78,21 +78,21 @@ export class SchedulesApi {
   constructor(private db: Firestore, private userId: string) {
     this.db = db;
     this.userId = userId;
-    const userDoc = db.collection("users").doc(this.userId);
+    const userDoc = db.collection('users').doc(this.userId);
     userDoc
       .get()
       .then(doc => {
         if (!doc.exists) {
-          throw new Error("User does not exist!");
+          throw new Error('User does not exist!');
         } else {
           this.userSchedules = db
-            .collection("users")
+            .collection('users')
             .doc(this.userId)
             .collection(COLLECTION_NAME);
         }
       })
       .catch(err => {
-        return { status: "error", code: 404, message: "no user" };
+        return { status: 'error', code: 404, message: 'no user' };
       });
   }
 
@@ -232,9 +232,9 @@ export class ScheduleApiHandlers {
   ): Promise<any> {
     if (!context.auth) {
       return {
-        status: "forbidden",
+        status: 'forbidden',
         code: 403,
-        message: "You're not authorised"
+        message: "You're not authorised",
       };
     }
     const userId = context.auth.uid;
@@ -242,7 +242,7 @@ export class ScheduleApiHandlers {
       const schedulerApi = new SchedulesApi(this.db, userId);
       return schedulerApi.schedules();
     } catch (e) {
-      return { status: "error", code: 404, message: "no user" };
+      return { status: 'error', code: 404, message: 'no user' };
     }
   }
 }
