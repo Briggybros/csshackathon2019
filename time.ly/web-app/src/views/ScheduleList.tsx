@@ -34,9 +34,15 @@ export const ScheduleList = ({ user }: Props) => {
               {schedule.weeklyFrequency === 1
                 ? 'Once'
                 : `${schedule.weeklyFrequency} times`}{' '}
-              a week between {schedule.preferredHours.from}:00 and{' '}
-              {schedule.preferredHours.to}:00 on{' '}
-              {schedule.preferredDays.map(day => `${days[day]} `)}
+              a week between {schedule.preferredHours.start}:00 and{' '}
+              {schedule.preferredHours.end}:00 on{' '}
+              {schedule.preferredDays.map(
+                day =>
+                  `${day.substring(0, 1).toUpperCase()}${day.substring(
+                    1,
+                    day.length
+                  )} `
+              )}
             </Description>
           </Info>
         </Entry>
