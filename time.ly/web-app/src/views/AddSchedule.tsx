@@ -60,19 +60,6 @@ export const AddSchedule = ({ history }: Props) => {
         />
       </Row>
       <Row>
-        <label>Frequency:</label>
-        <input
-          value={schedule.weeklyFrequency}
-          onChange={e =>
-            setSchedule({
-              ...schedule,
-              weeklyFrequency: parseInt(e.target.value),
-            })
-          }
-          type="number"
-        />
-      </Row>
-      <Row>
         <DayList>
           <label>Preferred Days:</label>
           {days.map((day, idx) => (
