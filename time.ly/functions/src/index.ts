@@ -1,36 +1,29 @@
 import * as functions from 'firebase-functions';
-import * as admin from 'firebase-admin'
+import * as admin from 'firebase-admin';
 
-import { google } from 'googleapis'
+import { google } from 'googleapis';
 
-const userApis = require('./user_apis')
-import { TodosApiHandler } from './todo_apis'
-import { ScheduleApiHandlers } from './schedule_apis'
+const userApis = require('./user_apis');
+import { TodosApiHandler } from './todo_apis';
+import { ScheduleApiHandlers } from './schedule_apis';
 import { config } from 'firebase-functions';
 
-const CONFIG:config.Config = functions.config()
-console.log("config",CONFIG)
-const CREDENTIALS = CONFIG['google_calendar']
+const CONFIG: config.Config = functions.config();
+console.log('config', CONFIG);
+const CREDENTIALS = CONFIG['google_calendar'];
 
 const oauth2Client = new google.auth.OAuth2(
-    <string>(CREDENTIALS&&CREDENTIALS['client_id']),
-    <string>(CREDENTIALS &&CREDENTIALS['client_secret']),
-    ""
+  CREDENTIALS && (CREDENTIALS['client_id'] as string),
+  CREDENTIALS && (CREDENTIALS['client_secret'] as string),
+  ''
 );
 
 const scopes = [
-    "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/calendar.events",
-]
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.events',
+];
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
-
-admin.initializeApp()
+admin.initializeApp();
 
 const db = admin.firestore();
 db.settings({
@@ -38,25 +31,35 @@ db.settings({
 });
 
 exports.addMessage = functions.https.onRequest((req, res) => {
-    const original = req.query.text;
-    res.status(200)
-        .send("{'message': 'hello world'}")
-})
+  const original = req.query.text;
+  res.status(200).send("{'message': 'hello world'}");
+});
 
-exports.onUserCreate = functions.auth.user().onCreate(userApis.onUserCreate(db))
-exports.onUserDelete = functions.auth.user().onDelete(userApis.onUserDelete(db))
+exports.onUserCreate = functions.auth
+  .user()
+  .onCreate(userApis.onUserCreate(db));
+exports.onUserDelete = functions.auth
+  .user()
+  .onDelete(userApis.onUserDelete(db));
 
+const todosHandlers = new TodosApiHandler(db);
 
+exports.getTodaysTodosForUser = functions.https.onCall(
+  todosHandlers.getTodaysTodosHandler
+);
+exports.getThisWeekTodosForUser = functions.https.onCall(
+  todosHandlers.getThisWeekTodosHandler
+);
+exports.addTodosForUser = functions.https.onCall(todosHandlers.addTodosHandler);
 
-const todosHandlers = new TodosApiHandler(db)
+const scheduleHandlers = new ScheduleApiHandlers(db);
 
-exports.getTodaysTodosForUser = functions.https.onCall(todosHandlers.getTodaysTodosHandler)
-exports.getThisWeekTodosForUser = functions.https.onCall(todosHandlers.getThisWeekTodosHandler)
-exports.addTodosForUser = functions.https.onCall(todosHandlers.addTodosHandler)
-
-const scheduleHandlers = new ScheduleApiHandlers(db)
-
-exports.addScheduleForUser = functions.https.onCall(scheduleHandlers.addScheduleHandler)
-exports.deleteScheduleForUser = functions.https.onCall(scheduleHandlers.deleteScheduleHandler)
-exports.getSchedulesForUser = functions.https.onCall(scheduleHandlers.getSchedulesHandler)
-
+exports.addScheduleForUser = functions.https.onCall(
+  scheduleHandlers.addScheduleHandler
+);
+exports.deleteScheduleForUser = functions.https.onCall(
+  scheduleHandlers.deleteScheduleHandler
+);
+exports.getSchedulesForUser = functions.https.onCall(
+  scheduleHandlers.getSchedulesHandler
+);
