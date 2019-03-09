@@ -1,4 +1,3 @@
-import {google} from 'googleapis'
 import { CallableContext } from 'firebase-functions/lib/providers/https';
 import { Firestore } from '@google-cloud/firestore';
 
@@ -15,6 +14,17 @@ export class AuthApis {
             return Promise.reject("not logged in")
         }
         const userId = context.auth.uid
-        return Promise.resolve({success: true})
+        try {
+            await this.db
+                .collection("users")
+                .doc(userId)
+                .update({
+                    accessToken: accessToken,
+                    refreshToken: refreshToken,
+                })
+            return {success: true}
+        } catch (e) {
+            console.error("handleStoreToken-error", e)
+        }
     }
 }

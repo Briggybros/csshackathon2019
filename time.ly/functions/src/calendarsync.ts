@@ -1,22 +1,16 @@
 import * as todoListApis from './todo_apis'
 import { google, GoogleApis, calendar_v3} from 'googleapis'
+import { OAuth2Client } from 'googleapis-common';
 
 
-class CalendarSync {
+export class CalendarSync {
     private calendarClient : calendar_v3.Calendar
-    constructor(private userId:string,
-        private googleApiToken: string, 
-        private clientId: string,
-        private clientSecret: string) {
-            const oauthClient = new google.auth.OAuth2(
-                clientId,
-                clientSecret,
-                ""
-            );
+    constructor(private userId:string, private oauthClient: OAuth2Client) {
             this.calendarClient = google.calendar({
                 version: "v3",
                 auth: oauthClient,
             })
+
             this.syncWeeklyTodos = this.syncWeeklyTodos.bind(this)
             this.getCalendarEvents = this.getCalendarEvents.bind(this)
     }
@@ -25,9 +19,8 @@ class CalendarSync {
         return Promise.resolve({ success: true})
     }
 
-    async getCalendarEvents(calendarId: string, dateFrom: Date, dateTo: Date): Promise<any> {
+    async getCalendarEvents(dateFrom: Date, dateTo: Date): Promise<any> {
         const events = await this.calendarClient.events.list({
-            calendarId,
             timeMin: dateFrom.toISOString(),
             timeMax: dateTo.toISOString(),
         })

@@ -6,7 +6,6 @@ import {
   DocumentSnapshot,
 } from '@google-cloud/firestore';
 import { CallableContext } from 'firebase-functions/lib/providers/https';
-import { user } from 'firebase-functions/lib/providers/auth';
 
 export const COLLECTION_NAME = 'schedules';
 
