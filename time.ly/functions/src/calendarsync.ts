@@ -24,6 +24,8 @@ export class CalendarSync {
             calendarId:"primary",
             timeMin: lastMonday.toISOString(),
             timeMax: nextMonday.toISOString(),
+        }).then(result => {
+            return result.data
         })
     }
 
