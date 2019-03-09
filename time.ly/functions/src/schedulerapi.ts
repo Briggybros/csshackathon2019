@@ -42,6 +42,7 @@ export class SchedularApis {
     generateTodoList = async (userId: string, schedules: Schedule[]): Promise<TodoList[]> => {
       const url = "https://us-central1-boeing2019hackathon.cloudfunctions.net/scheduleMachineLearn/"
       return await gaxios.instance.request({
+        url: url,
         method: "POST",
         data: schedules,
       }).then(res => {
