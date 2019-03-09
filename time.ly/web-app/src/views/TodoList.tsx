@@ -20,12 +20,19 @@ const UndoneIcon = styled(MdRadioButtonUnchecked)`
   margin-right: 0.75rem;
 `;
 
+interface TodoList {
+  date: string;
+  id: string;
+  userId: string;
+  todos: Todo[];
+}
+
 interface Props {
   user: firebase.User | null;
 }
 
 export const TodoList = ({ user }: Props) => {
-  const [todoList, setTodoList] = React.useState<Todo[]>([]);
+  const [todoList, setTodoList] = React.useState<TodoList | null>(null);
 
   React.useEffect(() => {
     if (user) {
@@ -44,30 +51,35 @@ export const TodoList = ({ user }: Props) => {
 
   return (
     <>
-      {todoList.map(todo => (
-        <Entry key={todo.name}>
-          <Item
-            onClick={() => {
-              setTodoList([
-                {
-                  ...todo,
-                  done: !todo.done,
-                },
-              ]);
-            }}
-          >
-            {todo.done ? <DoneIcon /> : <UndoneIcon />}
-            <Info>
-              <Name>{todo.name}</Name>
-              <Description>
-                At {new Date(todo.datetime).getHours()}:00 for {todo.duration}{' '}
-                hour
-                {todo.duration !== 1 && 's'}
-              </Description>
-            </Info>
-          </Item>
-        </Entry>
-      ))}
+      {todoList &&
+        todoList.todos.map(todo => (
+          <Entry key={todo.name}>
+            <Item
+              onClick={() => {
+                setTodoList({
+                  ...todoList,
+                  todos: todoList.todos.map(mtodo => {
+                    if (mtodo.todoId === todo.todoId) {
+                      return { ...mtodo, done: !mtodo.done };
+                    } else {
+                      return mtodo;
+                    }
+                  }),
+                });
+              }}
+            >
+              {todo.done ? <DoneIcon /> : <UndoneIcon />}
+              <Info>
+                <Name>{todo.name}</Name>
+                <Description>
+                  At {new Date(todo.scheduledDateTime).getHours()}:00 for{' '}
+                  {todo.scheduledDuration / 60} hour
+                  {todo.scheduledDuration / 60 !== 1 && 's'}
+                </Description>
+              </Info>
+            </Item>
+          </Entry>
+        ))}
       <Footer />
     </>
   );
