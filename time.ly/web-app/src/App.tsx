@@ -21,7 +21,6 @@ const Brand = styled.span`
 interface Props {
   user: firebase.User | null;
 }
-
 const Renderer = ({ user }: Props) => (
   <>
     <Header>
@@ -36,4 +35,5 @@ const Renderer = ({ user }: Props) => (
     {user === null ? <Login /> : <ScheduleList />}
   </>
 );
+
 export const App = useUser(Renderer);
